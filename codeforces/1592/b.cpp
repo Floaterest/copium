@@ -1,4 +1,3 @@
-// B
 #include <bits/stdc++.h>
 
 using namespace std;
@@ -167,26 +166,29 @@ int main(){
         int n, x;
         re(n, x);
 
-        int a[n], b[n], j;
+        int a[n], b[n];
         f0r(i, n){
-            re(j);
-            a[i] = j, b[i] = j;
+            re(a[i]);
+            b[i] = a[i];
+        }
+
+        // all items can move freely
+        if(n >= 2 * x){
+            ps("yes");
+            continue;
         }
 
         sort(b, b + n);
-        bool sorted = true;
-        f0r(i, n){
-            // if cant move
-            if(i - x < 0 and i + x > n - 1){
-                // and if not in sorted position
-                if(a[i] != b[i]){
-                    sorted = false;
-                    break;
-                }
+        bool no = false;
+        // eg 01234 n=5 x=4
+        //    _xxx_ (x means cant move)
+        // only elements [n-x,x) cant move
+        FOR(i, n - x, x){
+            if(a[i] != b[i]){
+                no = true;
+                break;
             }
         }
-
-        ps(sorted ? "yes" : "no");
+        ps(no ? "no" : "yes");
     }
-    return 0;
 }
