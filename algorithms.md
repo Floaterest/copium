@@ -5,11 +5,17 @@
 # Graph
 ## Dijkstra
 > find the shortest paths between nodes in a graph ([wiki](https://en.wikipedia.org/wiki/Dijkstra's_algorithm))
+
 <ul>
+<li>
+note
+
+- can't deal with negative weights
+</li>
 
 <li>
-
 uses
+
 - `vector<pair<int,int>>[]` to represent graph
 - `priority_queue` to find shortest distance
 </li>
