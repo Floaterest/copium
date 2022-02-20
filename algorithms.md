@@ -108,7 +108,6 @@ int main(){
         pq.pop();
 
         // for each adjacent node v from u
-        nv = (int)g[u].size();
         for(pi &p: g[u]){
             v = p.first, w = p.second;
             // if u to v is shorter than the prev record
