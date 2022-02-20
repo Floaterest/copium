@@ -80,7 +80,7 @@ using namespace std;
 #define mp make_pair
 
 int main(){
-    // num of vertexes, start node, end node
+    // num of vertices, start node, end node
     int nv, a, b;
     cin >> nv >> a >> b;
 
