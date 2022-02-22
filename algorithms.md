@@ -16,7 +16,7 @@ note
 <li>
 uses
 
-- `vector<pair<int,int>>[]` to represent graph
+- `vector<pair<int,int>>[]` (adjacency list) to represent graph
 - `priority_queue` to find shortest distance
 </li>
 
