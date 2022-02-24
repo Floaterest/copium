@@ -1,2 +1,2 @@
-# CCPPCPP
-My **C**ode for **C**ompetitive **P**rogramming, **P**rimarily in **CPP**
+# cp
+My code for **c**ompetitive **p**rogramming
