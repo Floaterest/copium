@@ -10,9 +10,9 @@ mod reader {
 
     #[derive(Debug)]
     pub struct Reader<R: Read> {
+        pub reader: BufReader<R>,
         tokens: Peekable<SplitWhitespace<'static>>,
         line: Box<str>,
-        reader: BufReader<R>,
     }
 
     impl<R: Read> Reader<R> {
@@ -55,37 +55,97 @@ mod reader {
     }
 }
 
+#[macro_use]
+mod writer {
+    use std::fmt::Display;
+    use std::io::{BufWriter, Write};
+
+    //#region Writable
+    pub trait Writable<Mode> {
+        fn write_to<W: Write>(self, w: &mut W);
+    }
+
+    #[non_exhaustive]
+    pub struct One;
+
+    #[non_exhaustive]
+    pub struct Many;
+
+    #[non_exhaustive]
+    pub struct Slice;
+
+    impl<T: Display> Writable<One> for T {
+        fn write_to<W: Write>(self, w: &mut W) {
+            write!(w, "{}", self).unwrap()
+        }
+    }
+
+    impl<I> Writable<Many> for I where I: Iterator, I::Item: Display {
+        fn write_to<W: Write>(mut self, w: &mut W) {
+            self.for_each(|val| write!(w, "{}", val).unwrap());
+        }
+    }
+
+    impl<T: Display> Writable<Slice> for &[T] {
+        fn write_to<W: Write>(self, w: &mut W) {
+            self.iter().write_to(w);
+        }
+    }
+    //#endregion Writable
+
+    //#region Writer
+    #[derive(Debug)]
+    pub struct Writer<W: Write> {
+        pub writer: BufWriter<W>,
+    }
+
+    impl<W: Write> Writer<W> {
+        pub fn new(w: W) -> Self {
+            Self { writer: BufWriter::new(w) }
+        }
+        pub fn write<M, T: Writable<M>>(&mut self, val: T) {
+            val.write_to(&mut self.writer);
+            self.writer.write("\n".as_bytes()).unwrap();
+        }
+    }
+    //#endregion Writer
+    macro_rules! wr {
+        ($w:expr, $val:expr) => ($w.write($val));
+    }
+    macro_rules! yneos {
+        ($w:expr, $bool:expr) => ($w.write(if $bool { "yes" } else { "no" }));
+    }
+}
 //#endregion mod
 
 use std::{fs::File, io::{Read, Write}};
 use reader::Reader;
+use writer::Writer;
 
 //#region constant
 const d8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
 //#endregion constant
 
-fn solve<R: Read, W: Write>(mut r: Reader<R>, mut w: W) {
+fn solve<R: Read, W: Write>(mut r: Reader<R>, mut w: Writer<W>) {
     let (H, W) = re!(r,usize,usize);
     let mut map = vec![0; H + 2];
     // create H+2 and W+2 field
     (1..=H).for_each(
-        |h| re!(r,String).bytes().for_each(
-            |b| map[h] = (map[h] + (b == b'#') as usize) << 1
+        |y| re!(r,String).bytes().for_each(
+            |b| map[y] = (map[y] + (b == b'#') as usize) << 1
         )
     );
+
     (1..=H).for_each(
-        |y| {
-            (1..=W).rev().for_each(
-                |x| write!(w, "{}", if (map[y] >> x & 1) == 1 { '#' } else {
-                    (d8.iter().map(
-                        |(dx, dy)| ((x as i32 + dx) as usize, (y as i32 + dy) as usize)
-                    ).filter(
-                        |(x, y)| map[*y] >> x & 1 == 1
-                    ).count() as u8 + b'0') as char
-                }).unwrap()
-            );
-            write!(w, "{}", '\n').unwrap();
-        }
+        |y| wr!(w, (1..=W).rev().map(
+            |x| if (map[y] >> x & 1) == 1 { '#' } else {
+                (d8.iter().map(
+                    |(dx, dy)| ((x as i32 + dx) as usize, (y as i32 + dy) as usize)
+                ).filter(
+                    |(x, y)| map[*y] >> x & 1 == 1
+                ).count() as u8 + b'0') as char
+            }
+        ))
     );
 }
 
@@ -94,7 +154,7 @@ fn main() {
     solve(
         Reader::new(File::open("input.txt").unwrap()),
         // Writer::new(File::create("output.txt").unwrap()),
-        std::io::stdout(),
+        Writer::new(std::io::stdout()),
     )
 }
 
@@ -103,6 +163,6 @@ fn main() {
     let (stdin, stdout) = (std::io::stdin(), std::io::stdout());
     solve(
         Reader::new(stdin.lock()),
-        stdout.lock(),
+        Writer::new(stdout.lock()),
     );
 }
