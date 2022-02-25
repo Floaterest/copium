@@ -21,7 +21,7 @@ def split_url(url: str) -> str:
     >>> get_domain('https://atcoder.jp/contests/abc066/tasks/abc066_b')
     'atcoder.jp'
     """
-    return url.removeprefix('https://').split('/')
+    return url.lower().removeprefix('https://').split('/')
 
 
 def main(url: str, comment: str):
@@ -38,7 +38,7 @@ def main(url: str, comment: str):
     from https://codeforces.com/contest/1598/problem/A
     to   path/to/repo/codeforces.com/1598/a.rs
     """
-    dest = os.path.join(git, *parts[::2]).lower() + os.path.splitext(src)[1]
+    dest = os.path.join(git, *parts[::2]) + os.path.splitext(src)[1]
     action = 'update' if os.path.exists(dest) else 'add'
 
     # copy file
@@ -49,7 +49,8 @@ def main(url: str, comment: str):
     # git
     os.chdir(git)
     os.system(f'git add {dest}')
-    os.system(f'git commit -m "{action}({domain.split(".")[0]}) {parts[-3]} {parts[-1]} {comment}" -m "{url}"')
+    #                                                             contest     task letter
+    os.system(f'git commit -m "{action}({domain.split(".")[0]}) {parts[-3]} {parts[-1][-1]} {comment}" -m "{url}"')
 
 
 if __name__ == '__main__':
