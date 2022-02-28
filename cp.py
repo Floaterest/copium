@@ -39,11 +39,14 @@ def main(url: str, comment: str):
     to   path/to/repo/codeforces.com/1598/a.rs
     """
     dest = os.path.join(git, *parts[::2]) + os.path.splitext(src)[1]
-    action = 'update' if os.path.exists(dest) else 'add'
+    if os.path.exists(dest):
+        action, copy = 'update', 'Override'
+    else:
+        action, copy = 'add', 'Copy'
 
     # copy file
     os.makedirs(os.path.dirname(dest), exist_ok=True)
-    print('Copy', src, '->', dest)
+    print(copy, src, '->', dest)
     shutil.copy(src, dest)
 
     # git
