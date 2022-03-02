@@ -1,8 +1,9 @@
-import argparse
-import json
 import os
-import shutil
+import json
+import argparse
+from codecs import open
 
+COMMENT = '// %s\n'
 CONVERT = {
     'codeforces.com': lambda parts: url[31:].replace('/problem', ''),
     'atcoder.jp': lambda parts: parts[-1],
@@ -22,6 +23,12 @@ def split_url(url: str) -> str:
     'atcoder.jp'
     """
     return url.lower().removeprefix('https://').split('/')
+
+
+def write(src:str, dest:str, url:str):
+    with open(src, 'r', 'utf8') as fsrc, open(dest, 'w', 'utf8') as fdest:
+        fdest.write(COMMENT % url)
+        fdest.write(fsrc.read())
 
 
 def main(url: str, comment: str):
@@ -47,7 +54,7 @@ def main(url: str, comment: str):
     # copy file
     os.makedirs(os.path.dirname(dest), exist_ok=True)
     print(copy, src, '->', dest)
-    shutil.copy(src, dest)
+    write(src, dest, url)
 
     # git
     os.chdir(git)
