@@ -10,11 +10,6 @@ CONVERT = {
 }
 
 
-def config() -> (str, str):
-    with open(os.path.splitext(__file__)[0] + '.json', 'r') as f:
-        return map(json.load(f).get, ('git', 'src'))
-
-
 def split_url(url: str) -> str:
     """
     >>> get_domain('https://codeforces.com/contest/1598/problem/A')
@@ -31,8 +26,7 @@ def write(src:str, dest:str, url:str):
         fdest.write(fsrc.read())
 
 
-def main(url: str, comment: str):
-    git, src = config()
+def main(src:str, url: str, comment: str):
     parts = split_url(url)
     domain = parts[0]
 
@@ -45,7 +39,7 @@ def main(url: str, comment: str):
     from https://codeforces.com/contest/1598/problem/A
     to   path/to/repo/codeforces.com/1598/a.rs
     """
-    dest = os.path.join(git, *parts[::2]) + os.path.splitext(src)[1]
+    dest = os.path.join(*parts[::2]) + os.path.splitext(src)[1]
     if os.path.exists(dest):
         action, copy = 'update', 'Override'
     else:
@@ -57,7 +51,6 @@ def main(url: str, comment: str):
     write(src, dest, url)
 
     # git
-    os.chdir(git)
     os.system(f'git add {dest}')
     #                                                             contest     task letter
     os.system(f'git commit -m "{action}({domain.split(".")[0]}) {parts[-3]} {parts[-1][-1]} {comment}" -m "{url}"')
@@ -65,8 +58,9 @@ def main(url: str, comment: str):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('src', type=str)
     parser.add_argument('url', type=str)
     parser.add_argument('comment', nargs=argparse.ZERO_OR_MORE, default='')
 
     args = parser.parse_args()
-    main(args.url.lower(), ' '.join(args.comment))
+    main(args.src, args.url.lower(), ' '.join(args.comment))
