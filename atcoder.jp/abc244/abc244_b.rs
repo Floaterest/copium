@@ -164,18 +164,20 @@ const d8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1
 //#endregion constant
 
 fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
-    let mut p = [0, 0];
-    let d = [(0, 1), (1, -1), (0, -1), (1, 1)];
-    let mut i = 0;
+    let (mut x, mut y, mut d) = (0, 0, 0);
     re.us();
-    re.bytes().iter().for_each(|&b| {
-        if b == b'S' {
-            p[d[i].0] += d[i].1;
-        } else if b == b'R' {
-            i = (i + 1) % 4;
-        }
+    re.bytes().iter().for_each(|&b| match b {
+        b'S' => match d {
+            0 => x += 1,
+            1 => y -= 1,
+            2 => x -= 1,
+            3 => y += 1,
+            _ => {}
+        },
+        b'R' => d = (d + 1) % 4,
+        _ => {}
     });
-    wsn!(wr,p[0],p[1]);
+    wsn!(wr,x,y);
 }
 
 #[cfg(debug_assertions)]
