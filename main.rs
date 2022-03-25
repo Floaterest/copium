@@ -1,6 +1,5 @@
 #![allow(unused_macros, dead_code, unused_mut, unused_variables, non_snake_case, non_upper_case_globals)]
 
-use std::collections::HashSet;
 use std::io::{Read, Write};
 
 use cp::{reader::Reader, writer::Writer};
@@ -75,17 +74,17 @@ pub mod cp {
         }
 
         #[non_exhaustive]
-        pub struct Slice;
+        pub struct One;
 
         #[non_exhaustive]
         pub struct Many;
 
         #[non_exhaustive]
-        pub struct One;
+        pub struct Slice;
 
-        impl<T: Display> Writable<Slice> for &[T] {
+        impl<T: Display> Writable<One> for T {
             fn write_to<W: Write>(self, w: &mut W, sep: &str, end: &str) {
-                self.iter().write_to(w, sep, end);
+                write!(w, "{}{}", self, end).unwrap();
             }
         }
 
@@ -100,9 +99,9 @@ pub mod cp {
             }
         }
 
-        impl<T: Display> Writable<One> for T {
+        impl<T: Display> Writable<Slice> for &[T] {
             fn write_to<W: Write>(self, w: &mut W, sep: &str, end: &str) {
-                write!(w, "{}{}", self, end).unwrap();
+                self.iter().write_to(w, sep, end);
             }
         }
         //#endregion Writable
@@ -115,9 +114,7 @@ pub mod cp {
 
         impl<W: Write> Writer<W> {
             pub fn new(w: W) -> Self {
-                Self {
-                    writer: BufWriter::new(w),
-                }
+                Self { writer: BufWriter::new(w) }
             }
 
             pub fn y(&mut self, b: bool) {
@@ -130,6 +127,11 @@ pub mod cp {
             pub fn n<M, T: Writable<M>>(&mut self, val: T) {
                 //! no sep, end with '\n'
                 val.write_to(&mut self.writer, "", "\n");
+            }
+            pub fn nf<M, T: Writable<M>>(&mut self, val: T) {
+                //! write with '\n' and flush
+                val.write_to(&mut self.writer, "", "\n");
+                self.writer.flush().unwrap();
             }
             pub fn sn<M, T: Writable<M>>(&mut self, val: T) {
                 //! space sep, end with '\n'
@@ -161,20 +163,21 @@ pub mod cp {
 
 //#region constant
 const d8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
-//#endregion constant
 
+//#endregion constant
 fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
     let n = re.us(); // read an usize (re.i(), re.f(), etc)
     let (i, f) = r!(re, i32, f32); /// read multiple values of different types
     let bytes = re.bytes(); // read string as bytes
-    let vi: Vec<_> = r!(re,[i32;n]).collect(); // read n items, collect to Vec
+    let vec: Vec<_> = r!(re,[i32;n]).collect(); // read n items, collect to Vec
     let set: HashSet<_> = r!(re,[u32;n]).map(|n| n * 2).collect(); // read, map, collect to HashSet
 
-    wr.y(n == vi.len()); // if true { "YES\n" } else { "NO\n" }
+    wr.y(n == vec.len()); // if true { "YES\n" } else { "NO\n" }
     wsn!(wr, i, f); // space separated, end with '\n'
     wbn!(wr, bytes); // write each byte as char, no sep, end with '\n'
     wr.n(set.iter()); // no sep, end with '\n'
-    wr.sn(vi.iter()); // space separated, end with '\n'
+    wr.nf(i as f32 + f); // no sep, end with '\n', flush output (e.g. for interactive problems)
+    wr.sn(vec.iter()); // space separated, end with '\n'
 
     // ご武運を
 }
