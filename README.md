@@ -1,2 +1,2 @@
-# cp
-My code for **c**ompetitive **p**rogramming
+# Competitive Programming
+Place where I dump my code from competitve programming
