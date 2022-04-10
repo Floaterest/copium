@@ -12,6 +12,7 @@ pub mod cp {
         use std::iter::Peekable;
         use std::mem::transmute;
         use std::str::{FromStr, SplitWhitespace};
+        use std::any::type_name;
 
         #[derive(Debug)]
         pub struct Reader<R: Read> {
@@ -33,7 +34,7 @@ pub mod cp {
             fn prepare(&mut self) {
                 while self.tokens.peek().is_none() {
                     let mut line = String::new();
-                    let n = self.reader.read_line(&mut line).unwrap();
+                    let n = self.reader.read_line(&mut line).expect("Failed to read line!");
                     if n == 0 { return; /* EOF */ }
 
                     self.line = line.into_boxed_str();
@@ -45,7 +46,13 @@ pub mod cp {
 
             pub fn token<T: FromStr>(&mut self) -> T {
                 self.prepare();
-                self.tokens.next().unwrap().parse().ok().unwrap()
+                match self.tokens.next() {
+                    Some(token) => match token.parse() {
+                        Ok(value) => value,
+                        Err(..) => panic!("Cannot parse {} as {}", token, type_name::<T>())
+                    },
+                    None => panic!("Token is empty while trying to read {}", type_name::<T>())
+                }
             }
 
             pub fn i(&mut self) -> i32 { self.token::<i32>() }
@@ -53,6 +60,7 @@ pub mod cp {
             pub fn f(&mut self) -> f32 { self.token::<f32>() }
             pub fn us(&mut self) -> usize { self.token::<usize>() }
             pub fn bytes(&mut self) -> Vec<u8> { self.token::<String>().into_bytes() }
+            pub fn str(&mut self) -> String { self.token::<String>() }
         }
 
         macro_rules! r {
@@ -166,18 +174,31 @@ const d8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1
 
 //#endregion constant
 fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
-    let n = re.us(); // read an usize (re.i(), re.f(), etc)
-    let (i, f) = r!(re, i32, f32); /// read multiple values of different types
-    let bytes = re.bytes(); // read string as bytes
-    let vec: Vec<_> = r!(re,[i32;n]).collect(); // read n items, collect to Vec
-    let set: HashSet<_> = r!(re,[u32;n]).map(|n| n * 2).collect(); // read, map, collect to HashSet
+    // read an usize (re.i(), re.f(), etc)
+    let n: usize = re.us();
+    // read multiple values of different types
+    let (i, f) = r!(re, i32, f32);
+    // read string as bytes
+    let bytes: Vec<u8> = re.bytes();
+    // read string
+    let text: String = re.str();
+    // read n items, collect to Vec
+    let vec: Vec<_> = r!(re,[i32;n]).collect();
+    // read, map, collect to HashSet
+    let set: HashSet<_> = r!(re,[u32;n]).map(|n| n * 2).collect();
 
-    wr.y(n == vec.len()); // if true { "YES\n" } else { "NO\n" }
-    wsn!(wr, i, f); // space separated, end with '\n'
-    wbn!(wr, bytes); // write each byte as char, no sep, end with '\n'
-    wr.n(set.iter()); // no sep, end with '\n'
-    wr.nf(i as f32 + f); // no sep, end with '\n', flush output (e.g. for interactive problems)
-    wr.sn(vec.iter()); // space separated, end with '\n'
+    // if true { "YES\n" } else { "NO\n" }
+    wr.y(n == vec.len());
+    // space separated, end with '\n'
+    wsn!(wr, i, f);
+    // write each byte as char, no sep, end with '\n'
+    wbn!(wr, bytes);
+    // no sep, end with '\n'
+    wr.n(set.iter());
+    // no sep, end with '\n', flush output (e.g. for interactive problems)
+    wr.nf(i as f32 + f);
+    // space separated, end with '\n'
+    wr.sn(vec.iter());
 
     // ご武運を
 }
