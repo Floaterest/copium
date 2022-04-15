@@ -55,10 +55,9 @@ pub mod copium {
                 }
             }
 
-            pub fn i(&mut self) -> i32 { self.token::<i32>() }
-            pub fn ii(&mut self) -> i64 { self.token::<i64>() }
+            pub fn i(&mut self) -> i64 { self.token::<i64>() }
             pub fn f(&mut self) -> f32 { self.token::<f32>() }
-            pub fn us(&mut self) -> usize { self.token::<usize>() }
+            pub fn u(&mut self) -> usize { self.token::<usize>() }
             pub fn bytes(&mut self) -> Vec<u8> { self.token::<String>().into_bytes() }
             pub fn str(&mut self) -> String { self.token::<String>() }
         }
@@ -148,9 +147,6 @@ pub mod copium {
             pub fn sn<M, T: Writable<M>>(&mut self, val: T) {
                 //! space sep, end with '\n'
                 val.write_to(&mut self.writer, " ", "\n");
-            }
-            pub fn wr<M, T: Writable<M>>(&mut self, val: T, sep: &str, end: &str) {
-                val.write_to(&mut self.writer, sep, end);
             }
         }
         //#endregion Writer
