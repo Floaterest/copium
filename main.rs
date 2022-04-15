@@ -2,10 +2,10 @@
 
 use std::io::{Read, Write};
 
-use cp::{reader::Reader, writer::Writer};
+use copium::{reader::Reader, writer::Writer};
 
 #[macro_use]
-pub mod cp {
+pub mod copium {
     #[macro_use]
     pub mod reader {
         use std::io::{BufRead, BufReader, Read};
