@@ -136,6 +136,10 @@ pub mod copium {
                 //! no sep, end with '\n'
                 val.write_to(&mut self.writer, "", "\n");
             }
+            pub fn nn<M, T: Writable<M>>(&mut self, val: T) {
+                //! no sep, end with '\n'
+                val.write_to(&mut self.writer, "\n", "\n");
+            }
             pub fn nf<M, T: Writable<M>>(&mut self, val: T) {
                 //! write with '\n' and flush
                 val.write_to(&mut self.writer, "", "\n");
@@ -195,6 +199,8 @@ fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
     wbn!(wr, bytes);
     // no sep, end with '\n'
     wr.n(set.iter());
+    // '\n' separated, end with '\n'
+    wr.nn(set.iter());
     // no sep, end with '\n', flush output (e.g. for interactive problems)
     wr.nf(i as f32 + f);
     // space separated, end with '\n'
