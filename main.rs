@@ -2,10 +2,10 @@
 
 use std::io::{Read, Write};
 
-use cp::{reader::Reader, writer::Writer};
+use copium::{reader::Reader, writer::Writer};
 
 #[macro_use]
-pub mod cp {
+pub mod copium {
     #[macro_use]
     pub mod reader {
         use std::io::{BufRead, BufReader, Read};
@@ -55,10 +55,9 @@ pub mod cp {
                 }
             }
 
-            pub fn i(&mut self) -> i32 { self.token::<i32>() }
-            pub fn ii(&mut self) -> i64 { self.token::<i64>() }
+            pub fn i(&mut self) -> i64 { self.token::<i64>() }
             pub fn f(&mut self) -> f32 { self.token::<f32>() }
-            pub fn us(&mut self) -> usize { self.token::<usize>() }
+            pub fn u(&mut self) -> usize { self.token::<usize>() }
             pub fn bytes(&mut self) -> Vec<u8> { self.token::<String>().into_bytes() }
             pub fn str(&mut self) -> String { self.token::<String>() }
         }
@@ -136,6 +135,10 @@ pub mod cp {
                 //! no sep, end with '\n'
                 val.write_to(&mut self.writer, "", "\n");
             }
+            pub fn nn<M, T: Writable<M>>(&mut self, val: T) {
+                //! no sep, end with '\n'
+                val.write_to(&mut self.writer, "\n", "\n");
+            }
             pub fn nf<M, T: Writable<M>>(&mut self, val: T) {
                 //! write with '\n' and flush
                 val.write_to(&mut self.writer, "", "\n");
@@ -144,9 +147,6 @@ pub mod cp {
             pub fn sn<M, T: Writable<M>>(&mut self, val: T) {
                 //! space sep, end with '\n'
                 val.write_to(&mut self.writer, " ", "\n");
-            }
-            pub fn wr<M, T: Writable<M>>(&mut self, val: T, sep: &str, end: &str) {
-                val.write_to(&mut self.writer, sep, end);
             }
         }
         //#endregion Writer
@@ -195,6 +195,8 @@ fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
     wbn!(wr, bytes);
     // no sep, end with '\n'
     wr.n(set.iter());
+    // '\n' separated, end with '\n'
+    wr.nn(set.iter());
     // no sep, end with '\n', flush output (e.g. for interactive problems)
     wr.nf(i as f32 + f);
     // space separated, end with '\n'
