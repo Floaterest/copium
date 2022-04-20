@@ -28,7 +28,7 @@ find length of `{ x ∈ a : lower <= x <= upper }`
 // lower <= x <= upper ==>  a[left] <= x < a[right]
 let right = a.binary_search(&(upper + 1)).unwrap_or_else(|i| i);
 let left = a.binary_search(&lower).unwrap_or_else(|i| i);
-let len: usize =  right - left;
+let len =  right - left;
 ```
 
 </details>
