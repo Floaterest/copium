@@ -9,8 +9,8 @@
 ## Lower/Upper bound
 <details open><summary>tl;dr</summary>
 
-- `binary_search` from [doc.rust-lang.org](https://doc.rust-lang.org/std/primitive.slice.html#method.binary_search)
-- code from [`abc248_d.rs`](./atcoder.jp/abc248/abc248_b.rs)
+- `binary_search` from [doc.rust-lang.org](https://doc.rust-lang.org/std/primitive.slice.html#method.binary_search#L181)
+- code from [`abc248_d.rs`](./atcoder.jp/abc248/abc248_b.rs#L184)
 </details>
 
 <details><summary>not lazy; wanna read</summary>
