@@ -55,7 +55,7 @@ None
 <details><summary>not lazy; wanna read</summary>
 
 ### Given
-- `a: &[T]`: an **increasing** finite sequence 
+- `a: &[T]` an **increasing** finite sequence 
 - `x: T` such that `min(a) <= x <= max(a)`
 - `(lower, upper): (usize, usize)` such that `lower <= upper`
 
