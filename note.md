@@ -1,4 +1,11 @@
 # Problems
+## Ceil Integer Division
+
+given **unsigned** integers `p` and `q`
+```rs
+⌈p/q⌉ = 1 + ((p - 1) / q)
+```
+
 ## Dijkstra
 <details open><summary>tl;dr</summary>
 
