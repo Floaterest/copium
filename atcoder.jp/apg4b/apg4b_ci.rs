@@ -178,8 +178,8 @@ const d8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1
 //#endregion constant
 
 fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
-    let v = [re.u(), re.u(), re.u()];
-    wr.n(v.iter().max().unwrap() - v.iter().min().unwrap());
+    let (a, b, c) = r!(re,u32,u32,u32);
+    wr.n(a.max(b.max(c)) - a.min(b.min(c)));
 }
 
 #[cfg(debug_assertions)]
