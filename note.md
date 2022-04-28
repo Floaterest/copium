@@ -12,6 +12,10 @@ given **unsigned** integers `p` and `q`
 - `Entry` from [doc.rust-lang.org](https://doc.rust-lang.org/std/collections/struct.HashMap.html#method.entry)
 - code from [`abc211_b.rs`](./atcoder.jp/abc211/abc211_b.rs)
 
+```rs
+*hash_map.entry(key).or_insert(0) += 1
+```
+
 ## Dijkstra
 
 - `BinaryHeap` from [doc.rust-lang.org](https://doc.rust-lang.org/std/collections/binary_heap/index.html#examples)
