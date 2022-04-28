@@ -6,15 +6,18 @@ given **unsigned** integers `p` and `q`
 ⌈p/q⌉ = 1 + ((p - 1) / q)
 ```
 
+## Build HashMap
+> rust is your friend
+
+- `Entry` from [doc.rust-lang.org](https://doc.rust-lang.org/std/collections/struct.HashMap.html#method.entry)
+- code from [`abc211_b.rs`](./atcoder.jp/abc211/abc211_b.rs)
+
 ## Dijkstra
-<details open><summary>tl;dr</summary>
 
 - `BinaryHeap` from [doc.rust-lang.org](https://doc.rust-lang.org/std/collections/binary_heap/index.html#examples)
 - code from [`abc192_e.rs`](./atcoder.jp/abc192/abc192_e.rs#L181)
-</details>
 
-
-<details><summary>not lazy; wanna read</summary>
+<details><summary>Explanation</summary>
 
 ### Given
 - `graph: Vec<Vec<(usize,usize)>>` adjacency list of `(node, weight)`
@@ -53,13 +56,11 @@ None
 </details>
 
 ## Lower/Upper bound
-<details open><summary>tl;dr</summary>
 
 - `binary_search` from [doc.rust-lang.org](https://doc.rust-lang.org/std/primitive.slice.html#method.binary_search)
 - code from [`abc248_d.rs`](./atcoder.jp/abc248/abc248_d.rs#L184)
-</details>
 
-<details><summary>not lazy; wanna read</summary>
+<details><summary>Explanation</summary>
 
 ### Given
 - `a: &[T]` an **increasing** finite sequence 
