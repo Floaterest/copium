@@ -5,14 +5,16 @@ from codecs import open
 
 COMMENT = '// %s\n'
 
-def convert(parts: list[str]):
+def convert(url: str):
+    parts = url.removeprefix('https://').removesuffix('/').split('/')
+    domain = parts[0]
     match parts:
         case ['codeforces.com', _, contest, _, task]:
-            return [contest, f'{contest}_{task}']
+            return [domain, contest, f'{contest}_{task}']
         case ['atcoder.jp', _, contest, _, task]:
-            return [contest, task]
+            return [domain, contest, task]
         case ['leetcode.com', _, problem]:
-            return ['', problem]
+            return [domain, '', problem]
         case _:
             exit('Unknown url: ' + '/'.join(parts))
 
@@ -23,14 +25,12 @@ def write(src:str, dest:str, url:str):
 
 
 def main(src:str, url: str, comment: str):
-    parts = url.removeprefix('https://').removesuffix('/').split('/')
-    domain = parts[0]
-    contest, task = convert(parts)
+    domain, contest, task = convert(url)
     dest = os.path.join(domain, contest, task) + os.path.splitext(src)[1]
     if os.path.exists(dest):
-        action, copy = 'update', 'Override'
+        action, copy = 'update', '\033[91mOverride\033[00m'
     else:
-        action, copy = 'add', 'Copy'
+        action, copy = 'add', '\033[92mCopy\033[00m'
 
     # copy file
     os.makedirs(os.path.dirname(dest), exist_ok=True)
