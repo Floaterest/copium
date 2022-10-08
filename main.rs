@@ -1,16 +1,17 @@
-#![allow(unused_macros, dead_code, unused_variables, non_upper_case_globals)]
+#![allow(unused_macros, unused_variables, unused_mut, dead_code)]
 
 use std::io::{Read, Write};
+
 use reader::Reader;
 use writer::Writer;
 
 #[macro_use]
-pub mod reader {
+mod reader {
+    use std::any::type_name;
     use std::io::{BufRead, BufReader, Read};
     use std::iter::Peekable;
     use std::mem::transmute;
     use std::str::{FromStr, SplitWhitespace};
-    use std::any::type_name;
 
     #[derive(Debug)]
     pub struct Reader<R: Read> {
@@ -55,10 +56,12 @@ pub mod reader {
         }
 
         pub fn i(&mut self) -> i64 { self.token::<i64>() }
-        pub fn f(&mut self) -> f32 { self.token::<f32>() }
+        pub fn f(&mut self) -> f64 { self.token::<f64>() }
         pub fn u(&mut self) -> usize { self.token::<usize>() }
         pub fn u1(&mut self) -> usize { self.token::<usize>() - 1 }
+        pub fn c(&mut self) -> char { self.token::<char>() }
         pub fn s(&mut self) -> String { self.token::<String>() }
+        pub fn b(&mut self) -> Vec<u8> { self.token::<String>().into_bytes() }
     }
 
     macro_rules! r {
@@ -70,7 +73,7 @@ pub mod reader {
 }
 
 #[macro_use]
-pub mod writer {
+mod writer {
     use std::fmt::Display;
     use std::io::{BufWriter, Write};
 
@@ -112,7 +115,6 @@ pub mod writer {
     }
     //#endregion Writable Trait
 
-    //#region Writer
     #[derive(Debug)]
     pub struct Writer<W: Write> {
         pub writer: BufWriter<W>,
@@ -124,7 +126,7 @@ pub mod writer {
         }
         /// write "YES\n" or "NO\n" given boolean
         pub fn y(&mut self, b: bool) {
-            self.writer.write_all(if b { "YES\n" } else { "NO\n" }.as_bytes()).unwrap();
+            self.writer.write_all(if b { "Yes\n" } else { "No\n" }.as_bytes()).unwrap();
         }
         /// no sep, end with '\n'
         pub fn w<M, T: Writable<M>>(&mut self, val: T) {
@@ -152,7 +154,6 @@ pub mod writer {
             val.write_to(&mut self.writer, sep, end);
         }
     }
-    //#endregion Writer
 
     macro_rules! wsn {
         // e.g. wsn!(wr, 10, -50, "wot");
@@ -172,20 +173,21 @@ pub mod writer {
     }
 }
 
-//#region constant
-const d8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
-//#endregion constant
+// const d8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
 
 fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
-    // re.i() re.f() re.u1()
     let n: usize = re.u();
+    let i: i64 = re.i();
+    let f: f64 = re.f();
+    let u: usize = re.u1(); // re.u() -1
+    let c: char = re.c();
     // read multiple values
     let (i, f) = r!(re, i32, f32);
     let (i, f) = (re.i(), re.f());
     // read string
     let s: String = re.s();
     // or as bytes
-    let bs: Vec<u8> = re.s().into_bytes();
+    let bs: Vec<u8> = re.b();
     // read n items, collect to vec
     let v: Vec<_> = r!(re,[i32;n]).collect();
     // collect to HashSet
