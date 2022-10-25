@@ -1,5 +1,7 @@
+// https://atcoder.jp/contests/abc259/tasks/abc259_b
 #![allow(unused_macros, unused_variables, unused_mut, dead_code)]
 
+use std::f64::consts::PI;
 use std::io::{Read, Write};
 
 use reader::Reader;
@@ -176,39 +178,9 @@ mod writer {
 // const d8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
 
 fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
-    let n: usize = re.u();
-    let i: i64 = re.i();
-    let f: f64 = re.f();
-    let u: usize = re.u1(); // re.u() -1
-    let c: char = re.c();
-    // read multiple values
-    let (i, f) = r!(re, i32, f32);
-    let (i, f) = (re.i(), re.f());
-    // read string
-    let s: String = re.s();
-    // or as bytes
-    let bs: Vec<u8> = re.b();
-    // read n items, collect to vec
-    let v: Vec<_> = r!(re,[i32;n]).collect();
-    // collect to HashSet
-    let set: HashSet<_> = r!(re,[usize;n]).map(|n| n * 2).collect();
-
-    // write "YES\n" or "NO\n"
-    wr.y(n == v.len());
-    // write space sep, '\n' end
-    wsn!(wr, i, f);
-    // write each bytes as char, no sep, '\n' end
-    wbn!(wr, bs);
-    // no sep, '\n' end
-    wr.n(set.iter());
-    // '\n' sep, '\n' end
-    wr.nn(&[10, 20, 30]);
-    // no sep, '\n' end, then flush (for interactive)
-    wr.nf("interactive");
-    // space sep, '\n' end
-    wr.sn(&v);
-
-    // ご武運を
+    let (x, y, t) = (re.f(), re.f(), re.f() / 180.0 * PI);
+    dbg!(x,y,t);
+    wr.sn([x * t.cos() - y * t.sin(), x * t.sin() + y * t.cos()].iter());
 }
 
 #[cfg(debug_assertions)]

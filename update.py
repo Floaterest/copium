@@ -44,9 +44,9 @@ def main(src:str, url: str, comment: str):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('src', type=str)
-    parser.add_argument('url', type=str)
-    parser.add_argument('comment', nargs=argparse.ZERO_OR_MORE, default='')
+    parser.add_argument('src', type=str, help='path to submission code')
+    parser.add_argument('url', type=str, help='task url')
+    parser.add_argument('comment', nargs='*', default='', help='additional comments')
 
     args = parser.parse_args()
     main(args.src, args.url.lower(), ' '.join(args.comment))

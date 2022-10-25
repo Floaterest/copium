@@ -1,3 +1,4 @@
+// https://atcoder.jp/contests/abc259/tasks/abc259_c
 #![allow(unused_macros, unused_variables, unused_mut, dead_code)]
 
 use std::io::{Read, Write};
@@ -176,39 +177,38 @@ mod writer {
 // const d8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
 
 fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
-    let n: usize = re.u();
-    let i: i64 = re.i();
-    let f: f64 = re.f();
-    let u: usize = re.u1(); // re.u() -1
-    let c: char = re.c();
-    // read multiple values
-    let (i, f) = r!(re, i32, f32);
-    let (i, f) = (re.i(), re.f());
-    // read string
-    let s: String = re.s();
-    // or as bytes
-    let bs: Vec<u8> = re.b();
-    // read n items, collect to vec
-    let v: Vec<_> = r!(re,[i32;n]).collect();
-    // collect to HashSet
-    let set: HashSet<_> = r!(re,[usize;n]).map(|n| n * 2).collect();
-
-    // write "YES\n" or "NO\n"
-    wr.y(n == v.len());
-    // write space sep, '\n' end
-    wsn!(wr, i, f);
-    // write each bytes as char, no sep, '\n' end
-    wbn!(wr, bs);
-    // no sep, '\n' end
-    wr.n(set.iter());
-    // '\n' sep, '\n' end
-    wr.nn(&[10, 20, 30]);
-    // no sep, '\n' end, then flush (for interactive)
-    wr.nf("interactive");
-    // space sep, '\n' end
-    wr.sn(&v);
-
-    // ご武運を
+    let (a, b) = (re.b(), re.b());
+    let mut va: Vec<(&u8, usize)> = vec![];
+    let mut vb: Vec<(&u8, usize)> = vec![];
+    for ch in a.iter() {
+        if va.len() == 0 || va.iter().last().unwrap().0 != ch {
+            va.push((ch, 1));
+        } else {
+            let (ch, ct) = va.pop().unwrap();
+            va.push((ch, ct + 1));
+        }
+    }
+    for ch in b.iter() {
+        if vb.len() == 0 || vb.iter().last().unwrap().0 != ch {
+            vb.push((ch, 1));
+        } else {
+            let (ch, ct) = vb.pop().unwrap();
+            vb.push((ch, ct + 1));
+        }
+    }
+    if vb.len() != va.len() {
+        wr.n("No");
+    } else {
+        wr.y((0..vb.len()).all(
+            |i| va[i].0 == vb[i].0
+                && (
+                va[i].1 == vb[i].1
+                    || (
+                    va[i].1 > 1 && vb[i].1 > 1 && va[i].1 < vb[i].1
+                    )
+            )
+        ));
+    }
 }
 
 #[cfg(debug_assertions)]
