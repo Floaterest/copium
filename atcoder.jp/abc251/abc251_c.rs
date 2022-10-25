@@ -1,5 +1,7 @@
-#![allow(unused_macros, unused_variables, unused_mut, dead_code)]
+// https://atcoder.jp/contests/abc251/tasks/abc251_c
+#![allow(unused_macros, dead_code, unused_variables, non_upper_case_globals)]
 
+use std::collections::HashSet;
 use std::io::{Read, Write};
 
 use reader::Reader;
@@ -61,7 +63,6 @@ mod reader {
         pub fn u1(&mut self) -> usize { self.token::<usize>() - 1 }
         pub fn c(&mut self) -> char { self.token::<char>() }
         pub fn s(&mut self) -> String { self.token::<String>() }
-        pub fn b(&mut self) -> Vec<u8> { self.token::<String>().into_bytes() }
     }
 
     macro_rules! r {
@@ -115,6 +116,7 @@ mod writer {
     }
     //#endregion Writable Trait
 
+    //#region Writer
     #[derive(Debug)]
     pub struct Writer<W: Write> {
         pub writer: BufWriter<W>,
@@ -154,6 +156,7 @@ mod writer {
             val.write_to(&mut self.writer, sep, end);
         }
     }
+    //#endregion Writer
 
     macro_rules! wsn {
         // e.g. wsn!(wr, 10, -50, "wot");
@@ -173,42 +176,25 @@ mod writer {
     }
 }
 
-// const d8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
+//#region constant
+const d8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
+//#endregion constant
 
 fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
-    let n: usize = re.u();
-    let i: i64 = re.i();
-    let f: f64 = re.f();
-    let u: usize = re.u1(); // re.u() -1
-    let c: char = re.c();
-    // read multiple values
-    let (i, f) = r!(re, i32, f32);
-    let (i, f) = (re.i(), re.f());
-    // read string
-    let s: String = re.s();
-    // or as bytes
-    let bs: Vec<u8> = re.b();
-    // read n items, collect to vec
-    let v: Vec<_> = r!(re,[i32;n]).collect();
-    // collect to HashSet
-    let set: HashSet<_> = r!(re,[usize;n]).map(|n| n * 2).collect();
-
-    // write "YES\n" or "NO\n"
-    wr.y(n == v.len());
-    // write space sep, '\n' end
-    wsn!(wr, i, f);
-    // write each bytes as char, no sep, '\n' end
-    wbn!(wr, bs);
-    // no sep, '\n' end
-    wr.n(set.iter());
-    // '\n' sep, '\n' end
-    wr.nn(&[10, 20, 30]);
-    // no sep, '\n' end, then flush (for interactive)
-    wr.nf("interactive");
-    // space sep, '\n' end
-    wr.sn(&v);
-
-    // ご武運を
+    let mut s = HashSet::new();
+    let mut m = 0;
+    let mut n = 0;
+    (0..re.u()).for_each(|i| {
+        let (p, t) = r!(re,String,usize);
+        if !s.contains(&p) {
+            s.insert(p);
+            if m < t {
+                m = t;
+                n = i;
+            }
+        }
+    });
+    wr.n(n + 1);
 }
 
 #[cfg(debug_assertions)]
@@ -226,3 +212,5 @@ fn main() {
     let (stdin, stdout) = (std::io::stdin(), std::io::stdout());
     solve(Reader::new(stdin.lock()), Writer::new(stdout.lock()));
 }
+
+ 
