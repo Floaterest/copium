@@ -1,5 +1,4 @@
 import os
-import json
 import argparse
 from codecs import open
 
