@@ -1,8 +1,9 @@
 import os
 import argparse
 from codecs import open
+from datetime import datetime
 
-COMMENT = '// %s\n'
+COMMENT = '// %s %s\n'
 
 def convert(url: str):
     parts = url.removeprefix('https://').removesuffix('/').split('/')
@@ -19,7 +20,7 @@ def convert(url: str):
 
 def write(src:str, dest:str, url:str):
     with open(src, 'r', 'utf8') as fi, open(dest, 'w', 'utf8') as fo:
-        fo.write(COMMENT % url)
+        fo.write(COMMENT % (datetime.now().strftime('%Y-%m-%d'), url))
         fo.write(fi.read())
 
 
