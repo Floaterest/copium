@@ -18,11 +18,17 @@ given $p\in\mathbb N$ and $q\in\mathbb Z^+$
 ## Dijkstra
 > use `BinaryHeap` from [doc.rust-lang.org](https://doc.rust-lang.org/std/collections/binary_heap/index.html#examples)
 
-`graph` is an adjacency list of `(node, weight): (usize, usize)`
+given
+
+- digraph $G=(V,E)$ where $V=\lbrace i\in\mathbb N:i\lt n\rbrace$ for some $n$ as the size of the graph
+- function $w:V\times V\to\mathbb N$ where $w(u,v)$ is the weight from $u$ to $v$
+
+let `graph` be a weighted adjacency list of $G$, `graph[u]` is `Vec<(v, w)>` where $\texttt{w}=w(u,v)$
 
 ```rs
-fn dijkstra(graph: Vec<Vec<(usize, usize)>>, start: usize, end: usize) -> Option<usize> {
+fn dijkstra(graph: &Vec<Vec<(usize, usize)>>, start: usize, end: usize) -> Option<usize> {
     //! find shortest path from `start` to `end`
+
     // set all weights (from start) to MAX
     let mut w: Vec<usize> = vec![!0; graph.len()];
     // w(start, start) is 0
