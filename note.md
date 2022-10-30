@@ -18,28 +18,28 @@ given $p\in\mathbb N$ and $q\in\mathbb Z^+$
 ## Dijkstra
 > use `BinaryHeap` from [doc.rust-lang.org](https://doc.rust-lang.org/std/collections/binary_heap/index.html#examples)
 
-`graph` is adjacency list of `(node, weight)`
+`graph` is an adjacency list of `(node, weight): (usize, usize)`
 
 ```rs
 fn dijkstra(graph: Vec<Vec<(usize, usize)>>, start: usize, end: usize) -> Option<usize> {
-    //! find shortest distance from `start` to `end`
-    // set all distance (from start) to MAX
-    let mut dist: Vec<usize> = vec![!0; graph.len()];
-    // dist(start, start) is 0
-    dist[start] = 0;
+    //! find shortest path from `start` to `end`
+    // set all weights (from start) to MAX
+    let mut w: Vec<usize> = vec![!0; graph.len()];
+    // w(start, start) is 0
+    w[start] = 0;
     let mut heap = BinaryHeap::from([Reverse((0, start))]);
-    // check the node with the lowest dist first (min-heap)
-    while let Some(Reverse((du, u))) = heap.pop() {
+    // check the node with the lowest weight first (min-heap)
+    while let Some(Reverse((wu, u))) = heap.pop() {
         // reach destination (shortest)
-        if u == end { return Some(du); }
+        if u == end { return Some(wu); }
         // current path is not the shortest
-        if du > dist[u] { continue; }
-        // dist(start, v) = dist(start, u) + dist(u, v)
-        graph[u].iter().map(|&(v, uv)| (v, du + uv)).for_each(|(v, dv)| {
-            // if new weight is shorter
-            if dv < dist[v] {
-                heap.push(Reverse((dv, v)));
-                dist[v] = dv;
+        if wu > w[u] { continue; }
+        // w(start, v) = w(start, u) + w(u, v)
+        graph[u].iter().map(|&(v, uv)| (v, wu + uv)).for_each(|(v, wv)| {
+            // if new weight is less
+            if wv < w[v] {
+                heap.push(Reverse((wv, v)));
+                w[v] = wv;
             }
         });
     }
