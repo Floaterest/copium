@@ -1,18 +1,19 @@
-// https://atcoder.jp/contests/abc211/tasks/abc211_b
-#![allow(unused_macros, dead_code, unused_variables, non_upper_case_globals)]
+// 2022-10-29 https://atcoder.jp/contests/abc211/tasks/abc211_b
+#![allow(unused_macros, unused_variables, unused_mut, dead_code)]
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::io::{Read, Write};
+
 use reader::Reader;
 use writer::Writer;
 
 #[macro_use]
-pub mod reader {
+mod reader {
+    use std::any::type_name;
     use std::io::{BufRead, BufReader, Read};
     use std::iter::Peekable;
     use std::mem::transmute;
     use std::str::{FromStr, SplitWhitespace};
-    use std::any::type_name;
 
     #[derive(Debug)]
     pub struct Reader<R: Read> {
@@ -62,6 +63,7 @@ pub mod reader {
         pub fn u1(&mut self) -> usize { self.token::<usize>() - 1 }
         pub fn c(&mut self) -> char { self.token::<char>() }
         pub fn s(&mut self) -> String { self.token::<String>() }
+        pub fn b(&mut self) -> Vec<u8> { self.token::<String>().into_bytes() }
     }
 
     macro_rules! r {
@@ -73,7 +75,7 @@ pub mod reader {
 }
 
 #[macro_use]
-pub mod writer {
+mod writer {
     use std::fmt::Display;
     use std::io::{BufWriter, Write};
 
@@ -115,7 +117,6 @@ pub mod writer {
     }
     //#endregion Writable Trait
 
-    //#region Writer
     #[derive(Debug)]
     pub struct Writer<W: Write> {
         pub writer: BufWriter<W>,
@@ -155,7 +156,6 @@ pub mod writer {
             val.write_to(&mut self.writer, sep, end);
         }
     }
-    //#endregion Writer
 
     macro_rules! wsn {
         // e.g. wsn!(wr, 10, -50, "wot");
@@ -175,14 +175,10 @@ pub mod writer {
     }
 }
 
-//#region constant
-const d8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
-//#endregion constant
+// const d8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
 
 fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
-    let mut h: HashMap<String, usize> = HashMap::new();
-    r!(re,[String;4]).for_each(|s| *h.entry(s).or_insert(0) += 1);
-    wr.y(h.len() == 4 && h.iter().all(|(_, &v)| v == 1));
+    wr.y(r!(re,[String;4]).collect::<HashSet<_>>().len() == 4);
 }
 
 #[cfg(debug_assertions)]
@@ -200,4 +196,3 @@ fn main() {
     let (stdin, stdout) = (std::io::stdin(), std::io::stdout());
     solve(Reader::new(stdin.lock()), Writer::new(stdout.lock()));
 }
-
