@@ -3,9 +3,11 @@
 - [`abc211_c.rs`](./atcoder.jp/abc211/abc211_c.rs)
 -->
 
-# Natural Number
+# Algorithm
 
-## Ceil Integer Division
+## Natural Number
+
+### Ceil Integer Division
 
 given $p\in\mathbb N$ and $q\in\mathbb Z^+$
 
@@ -13,9 +15,9 @@ given $p\in\mathbb N$ and $q\in\mathbb Z^+$
 ⌈p/q⌉ = (p + q - 1) / q
 ```
 
-# Graph Theory
+## Graph Theory
 
-## Dijkstra
+### Dijkstra
 > use `BinaryHeap` from [doc.rust-lang.org](https://doc.rust-lang.org/std/collections/binary_heap/index.html#examples)
 
 given
@@ -57,7 +59,7 @@ examples
   - [`abc192_e.rs`](./atcoder.jp/abc192/abc192_e.rs#L181)
 
 
-## Lower/Upper bound
+### Lower/Upper bound
 
 - `binary_search` from [doc.rust-lang.org](https://doc.rust-lang.org/std/primitive.slice.html#method.binary_search)
 - code from [`abc248_d.rs`](./atcoder.jp/abc248/abc248_d.rs#L184)
