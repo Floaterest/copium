@@ -5,7 +5,7 @@
 
 # Algorithm
 
-## Natural Number
+## Number Theory
 
 ### Ceil Integer Division
 
