@@ -15,6 +15,26 @@ given $p\in\mathbb N$ and $q\in\mathbb Z^+$
 ⌈p/q⌉ = (p + q - 1) / q
 ```
 
+## Binary Search
+> when you are not allowed to use Rust
+```rs
+fn binary_search<T: Ord>(slice: &[T], target: T) -> Result<usize, usize> {
+    // slice.binary_search(&target)
+    let (mut left, mut right) = (0, slice.len());
+    while left < right {
+        let mid = (left + right) / 2;
+        if slice[mid] < target {
+            left = mid + 1;
+        } else if slice[mid] > target {
+            right = mid;
+        } else {
+            return Ok(mid);
+        }
+    }
+    Err(left)
+}
+```
+
 ## Graph Theory
 
 ### Dijkstra
