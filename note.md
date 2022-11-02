@@ -55,31 +55,30 @@ fn dijkstra(graph: &Vec<Vec<(usize, usize)>>, start: usize, end: usize) -> Optio
 }
 ```
 
+
+### Lower/Upper Bound
+> use  `binary_search` from [doc.rust-lang.org](https://doc.rust-lang.org/std/primitive.slice.html#method.binary_search)
+
+given
+- $(a_i)_{i=1}^N$ as **incresing** sequence of $\mathbb Z$
+- $L,U\in\mathbb Z$ st $1\le L\le U\le N$
+
+find $r-l$ where $\forall l\le j\lt r\quad L\le a_j\le U$
+- i.e. size of subsequence bounded by $L$ and $U$
+
+
+```rs
+fn bounded(a: &[i32], lower: i32, upper: i32) -> usize {
+    use std::convert::identity;
+    // lower <= x <= upper ==>  a[left] <= x < a[right]
+    let left = a.binary_search(&lower).unwrap_or_else(identity);
+    // +1 because if upper == a[i] for some i,
+    // then we want `right` to be i + 1 to satisfy j < r
+    let right = a.binary_search(&(upper + 1)).unwrap_or_else(identity);
+    right - left
+}
+```
+
 examples
   - [`abc192_e.rs`](./atcoder.jp/abc192/abc192_e.rs#L181)
 
-
-### Lower/Upper bound
-
-- `binary_search` from [doc.rust-lang.org](https://doc.rust-lang.org/std/primitive.slice.html#method.binary_search)
-- code from [`abc248_d.rs`](./atcoder.jp/abc248/abc248_d.rs#L184)
-
-<details><summary>Explanation</summary>
-
-### Given
-- `a: &[T]` an **increasing** finite sequence
-- `x: T` such that `min(a) <= x <= max(a)`
-- `(lower, upper): (usize, usize)` such that `lower <= upper`
-
-### Goal
-find length of `{ x ∈ a : lower <= x <= upper }`
-
-### Solution
-```rs
-// lower <= x <= upper ==>  a[left] <= x < a[right]
-let right = a.binary_search(&(upper + 1)).unwrap_or_else(|i| i);
-let left = a.binary_search(&lower).unwrap_or_else(|i| i);
-let len =  right - left;
-```
-
-</details>
