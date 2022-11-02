@@ -57,7 +57,7 @@ fn dijkstra(graph: &Vec<Vec<(usize, usize)>>, start: usize, end: usize) -> Optio
 
 
 ### Lower/Upper Bound
-> use  `binary_search` from [doc.rust-lang.org](https://doc.rust-lang.org/std/primitive.slice.html#method.binary_search)
+> use [`binary_search`](https://doc.rust-lang.org/std/primitive.slice.html#method.binary_search) (if `x` is not found, it returns index of smallest item in slice that is bigger than `x`)
 
 given
 - $(a_i)_{i=1}^N$ as **incresing** sequence of $\mathbb Z$
