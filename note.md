@@ -9,11 +9,7 @@
 
 ### Ceil Integer Division
 
-given $p\in\mathbb N$ and $q\in\mathbb Z^+$
-
-```rs
-⌈p/q⌉ = (p + q - 1) / q
-```
+given $p\in\mathbb N$ and $q\in\mathbb Z^+$ `⌈p/q⌉ = (p + q - 1) / q`
 
 ## Binary Search
 > when you are not allowed to use Rust
