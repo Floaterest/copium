@@ -38,7 +38,7 @@ fn binary_search<T: Ord>(slice: &[T], target: T) -> Result<usize, usize> {
 ## Graph Theory
 
 ### Dijkstra
-> use `BinaryHeap` from [doc.rust-lang.org](https://doc.rust-lang.org/std/collections/binary_heap/index.html#examples)
+> use [`BinaryHeap`](https://doc.rust-lang.org/std/collections/binary_heap/index.html#examples)
 
 given
 
