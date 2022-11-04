@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import os
 import argparse
 from codecs import open
