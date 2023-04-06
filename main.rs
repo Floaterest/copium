@@ -7,11 +7,13 @@ use writer::Writer;
 
 #[macro_use]
 mod reader {
-    use std::any::type_name;
-    use std::io::{BufRead, BufReader, Read};
-    use std::iter::Peekable;
-    use std::mem::transmute;
-    use std::str::{FromStr, SplitWhitespace};
+    use std::{
+        any::type_name,
+        io::{BufRead, BufReader, Read},
+        iter::Peekable,
+        mem::transmute,
+        str::{FromStr, SplitWhitespace},
+    };
 
     #[derive(Debug)]
     pub struct Reader<R: Read> {
@@ -19,7 +21,6 @@ mod reader {
         tokens: Peekable<SplitWhitespace<'static>>,
         line: Box<str>,
     }
-
     impl<R: Read> Reader<R> {
         pub fn new(r: R) -> Reader<R> {
             Reader {
@@ -34,48 +35,56 @@ mod reader {
             while self.tokens.peek().is_none() {
                 let mut line = String::new();
                 let n = self.reader.read_line(&mut line).expect("Failed to read line!");
-                if n == 0 { return; /* EOF */ }
+                if n == 0 {
+                    return; /* EOF */
+                }
 
                 self.line = line.into_boxed_str();
-                self.tokens = unsafe {
-                    transmute::<_, &'static str>(&*self.line)
-                }.split_whitespace().peekable();
+                self.tokens = unsafe { transmute::<_, &'static str>(&*self.line) }
+                    .split_whitespace()
+                    .peekable();
             }
         }
 
         /// get next token
-        pub fn token<T: FromStr>(&mut self) -> T {
+        pub fn next<T: FromStr>(&mut self) -> T {
             self.prepare();
             match self.tokens.next() {
                 Some(token) => match token.parse() {
-                    Ok(value) => value,
-                    Err(..) => panic!("Cannot parse {} as {}", token, type_name::<T>())
+                    Ok(token) => token,
+                    Err(..) => panic!("Cannot parse {token} as {}", type_name::<T>()),
                 },
-                None => panic!("Token is empty while trying to read {}", type_name::<T>())
+                None => panic!("Token is empty while trying to read {}", type_name::<T>()),
             }
         }
 
-        pub fn i(&mut self) -> i64 { self.token::<i64>() }
-        pub fn f(&mut self) -> f64 { self.token::<f64>() }
-        pub fn u(&mut self) -> usize { self.token::<usize>() }
-        pub fn u1(&mut self) -> usize { self.token::<usize>() - 1 }
-        pub fn c(&mut self) -> char { self.token::<char>() }
-        pub fn s(&mut self) -> String { self.token::<String>() }
-        pub fn b(&mut self) -> Vec<u8> { self.token::<String>().into_bytes() }
-    }
-
-    macro_rules! r {
-        // read iter, e.g. re!(r, [i32;n]).collect::<HashSet<_>>()
-        ($r:expr, [$type:ty; $len:expr]) => ((0..$len).map(|_| $r.token::<$type>()));
-        // read tuple, e.g. re!(r, usize, i32, String)
-        ($r:expr, $($type:ty),+) => (($($r.token::<$type>()),+));
+        pub fn i(&mut self) -> isize {
+            self.next::<isize>()
+        }
+        pub fn u(&mut self) -> usize {
+            self.next::<usize>()
+        }
+        pub fn u1(&mut self) -> usize {
+            self.u().checked_sub(1).expect("Attempted read 0 as usize1")
+        }
+        pub fn c(&mut self) -> char {
+            self.next::<char>()
+        }
+        pub fn s(&mut self) -> String {
+            self.next::<String>()
+        }
+        pub fn f(&mut self) -> f64 {
+            self.next::<f64>()
+        }
     }
 }
 
 #[macro_use]
 mod writer {
-    use std::fmt::Display;
-    use std::io::{BufWriter, Write};
+    use std::{
+        fmt::Display,
+        io::{BufWriter, Write},
+    };
 
     //#region Writable Trait
     pub trait Writable<Mode> {
@@ -94,11 +103,17 @@ mod writer {
     #[non_exhaustive]
     pub struct Iter;
 
-    impl<I> Writable<Iter> for I where I: Iterator, I::Item: Display {
+    impl<I> Writable<Iter> for I
+    where
+        I: Iterator,
+        I::Item: Display,
+    {
         fn write_to<W: Write>(mut self, w: &mut W, sep: &str, end: &str) {
             if let Some(val) = self.next() {
                 write!(w, "{}", val).unwrap();
-            } else { return; }
+            } else {
+                return;
+            }
 
             self.for_each(|val| write!(w, "{}{}", sep, val).unwrap());
             write!(w, "{}", end).unwrap();
@@ -176,39 +191,6 @@ mod writer {
 // const d8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
 
 fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
-    let n: usize = re.u();
-    let i: i64 = re.i();
-    let f: f64 = re.f();
-    let u: usize = re.u1(); // re.u() -1
-    let c: char = re.c();
-    // read multiple values
-    let (i, f) = r!(re, i32, f32);
-    let (i, f) = (re.i(), re.f());
-    // read string
-    let s: String = re.s();
-    // or as bytes
-    let bs: Vec<u8> = re.b();
-    // read n items, collect to vec
-    let v: Vec<_> = r!(re,[i32;n]).collect();
-    // collect to HashSet
-    let set: HashSet<_> = r!(re,[usize;n]).map(|n| n * 2).collect();
-
-    // write "YES\n" or "NO\n"
-    wr.y(n == v.len());
-    // write space sep, '\n' end
-    wsn!(wr, i, f);
-    // write each bytes as char, no sep, '\n' end
-    wbn!(wr, bs);
-    // no sep, '\n' end
-    wr.n(set.iter());
-    // '\n' sep, '\n' end
-    wr.nn(&[10, 20, 30]);
-    // no sep, '\n' end, then flush (for interactive)
-    wr.nf("interactive");
-    // space sep, '\n' end
-    wr.sn(&v);
-
-    // ご武運を
 }
 
 #[cfg(debug_assertions)]
