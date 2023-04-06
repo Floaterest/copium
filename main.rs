@@ -77,6 +77,13 @@ mod reader {
             self.next::<f64>()
         }
     }
+
+    macro_rules! r {
+        ($re:expr, $name:ident) => ($re.$name());
+        // read iter, e.g. r!(re, [u; n]).collect::<HashSet<_>>()
+        ($re:expr, [$name:ident; $len:expr]) => ((0..$len).map(|_| $re.$name()));
+        ($re:expr, $first:ident, $($i:tt),+) => ((r!($re, $first), $(r!($re, $i)),+));
+    }
 }
 
 #[macro_use]
