@@ -87,57 +87,86 @@ mod reader {
 }
 
 #[macro_use]
-mod writer {
+pub mod writer {
     use std::{
         fmt::Display,
         io::{BufWriter, Write},
     };
 
-    //#region Writable Trait
-    pub trait Writable<Mode> {
-        fn write_to<W: Write>(self, w: &mut W, sep: &str, end: &str);
+    pub trait Writable<T> {
+        /// write ' ' sep, no end
+        fn w<W: Write>(self, wr: &mut Writer<W>);
+        /// write ' ' sep, '\n' end
+        fn n<W: Write>(self, wr: &mut Writer<W>);
+        /// write ' ' sep, ' ' end
+        fn s<W: Write>(self, wr: &mut Writer<W>);
     }
 
     #[non_exhaustive]
-    pub struct One;
+    pub struct Atom;
+    impl<T: Display> Writable<Atom> for T {
+        fn w<W: Write>(self, wr: &mut Writer<W>) {
+            write!(wr.writer, "{self}").unwrap();
+        }
 
-    impl<T: Display> Writable<One> for T {
-        fn write_to<W: Write>(self, w: &mut W, sep: &str, end: &str) {
-            write!(w, "{}{}", self, end).unwrap();
+        fn n<W: Write>(self, wr: &mut Writer<W>) {
+            writeln!(wr.writer, "{self}").unwrap();
+        }
+
+        fn s<W: Write>(self, wr: &mut Writer<W>) {
+            write!(wr.writer, "{self} ").unwrap();
         }
     }
 
     #[non_exhaustive]
     pub struct Iter;
-
-    impl<I> Writable<Iter> for I
+    fn write_iter<W, T, F, I>(wr: &mut Writer<W>, mut iter: I, mut end: F)
     where
-        I: Iterator,
-        I::Item: Display,
-    {
-        fn write_to<W: Write>(mut self, w: &mut W, sep: &str, end: &str) {
-            if let Some(val) = self.next() {
-                write!(w, "{}", val).unwrap();
-            } else {
-                return;
+        W: Write,
+        T: Display,
+        I: Iterator<Item = T>,
+        F: FnMut(T, &mut Writer<W>), {
+        let mut last: Option<T> = None;
+        for item in iter {
+            if let Some(last) = last.take() {
+                last.s(wr);
             }
+            last = Some(item);
+        }
+        if let Some(last) = last.take() {
+            end(last, wr);
+        }
+    }
+    impl<T: Display, I: Iterator<Item = T>> Writable<Iter> for I {
+        fn w<W: Write>(self, wr: &mut Writer<W>) {
+            write_iter(wr, self, T::w);
+        }
 
-            self.for_each(|val| write!(w, "{}{}", sep, val).unwrap());
-            write!(w, "{}", end).unwrap();
+        fn n<W: Write>(self, wr: &mut Writer<W>) {
+            write_iter(wr, self, T::n);
+        }
+
+        fn s<W: Write>(self, wr: &mut Writer<W>) {
+            write_iter(wr, self, T::s);
         }
     }
 
     #[non_exhaustive]
     pub struct Slice;
-
     impl<T: Display> Writable<Slice> for &[T] {
-        fn write_to<W: Write>(self, w: &mut W, sep: &str, end: &str) {
-            self.iter().write_to(w, sep, end);
+        fn w<W: Write>(self, wr: &mut Writer<W>) {
+            self.iter().w(wr);
+        }
+
+        fn n<W: Write>(self, wr: &mut Writer<W>) {
+            self.iter().n(wr);
+        }
+
+        fn s<W: Write>(self, wr: &mut Writer<W>) {
+            self.iter().s(wr);
         }
     }
-    //#endregion Writable Trait
 
-    #[derive(Debug)]
     pub struct Writer<W: Write> {
         pub writer: BufWriter<W>,
     }
@@ -146,52 +175,18 @@ mod writer {
         pub fn new(w: W) -> Self {
             Self { writer: BufWriter::new(w) }
         }
-        /// write "YES\n" or "NO\n" given boolean
-        pub fn y(&mut self, b: bool) {
-            self.writer.write_all(if b { "Yes\n" } else { "No\n" }.as_bytes()).unwrap();
+        // ' ' sep, no end
+        pub fn w<M, T: Writable<M>>(&mut self, item: T) {
+            item.w(self);
         }
-        /// no sep, end with '\n'
-        pub fn w<M, T: Writable<M>>(&mut self, val: T) {
-            val.write_to(&mut self.writer, "", "");
+        // ' ' sep, end with '\n'
+        pub fn n<M, T: Writable<M>>(&mut self, item: T) {
+            item.n(self);
         }
-        /// no sep, end with '\n'
-        pub fn n<M, T: Writable<M>>(&mut self, val: T) {
-            val.write_to(&mut self.writer, "", "\n");
+        // ' ' sep, end with ' '
+        pub fn s<M, T: Writable<M>>(&mut self, item: T) {
+            item.s(self);
         }
-        /// '\n' separated, end with '\n'
-        pub fn nn<M, T: Writable<M>>(&mut self, val: T) {
-            val.write_to(&mut self.writer, "\n", "\n");
-        }
-        /// write with '\n' and flush
-        pub fn nf<M, T: Writable<M>>(&mut self, val: T) {
-            val.write_to(&mut self.writer, "", "\n");
-            self.writer.flush().expect("Failed to flush!");
-        }
-        /// space sep, end with '\n'
-        pub fn sn<M, T: Writable<M>>(&mut self, val: T) {
-            val.write_to(&mut self.writer, " ", "\n");
-        }
-        /// in case the task asks for some wacky sep or end
-        pub fn wr<M, T: Writable<M>>(&mut self, val: T, sep: &str, end: &str) {
-            val.write_to(&mut self.writer, sep, end);
-        }
-    }
-
-    macro_rules! wsn {
-        // e.g. wsn!(wr, 10, -50, "wot");
-        ($wr:expr, $first:expr, $($val:expr),*) => {
-            // write multiple vars, space sep, end with '\n'
-            write!($wr.writer, "{}", $first).unwrap();
-            ($(write!($wr.writer, " {}", $val).unwrap()),*);
-            write!($wr.writer, "\n").unwrap();
-        };
-    }
-    macro_rules! wbn {
-        ($wr:expr, $($bytes:expr),*) => {
-            // write &[u8] consecutively (no sep) and end with '\n'
-            ($($wr.writer.write(&$bytes).unwrap()),*);
-            write!($wr.writer, "\n").unwrap();
-        };
     }
 }
 
