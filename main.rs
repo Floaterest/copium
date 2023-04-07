@@ -58,8 +58,8 @@ mod reader {
             }
         }
 
-        pub fn i(&mut self) -> isize {
-            self.next::<isize>()
+        pub fn i(&mut self) -> i64 {
+            self.next::<i64>()
         }
         pub fn u(&mut self) -> usize {
             self.next::<usize>()
