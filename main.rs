@@ -188,6 +188,17 @@ mod writer {
             item.s(self);
         }
     }
+
+    /// write ' ' sep, end with '\n'
+    macro_rules! w {
+        ($wr:expr, $item:expr) => {
+            $wr.n($item);
+        };
+        ($wr:expr, $first:expr, $($item:expr),+) => {
+            $wr.s($first);
+            w!(($wr), $($item),+);
+        };
+    }
 }
 
 // const d8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
