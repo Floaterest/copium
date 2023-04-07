@@ -191,9 +191,7 @@ mod writer {
 
     /// write ' ' sep, end with '\n'
     macro_rules! w {
-        ($wr:expr, $item:expr) => {
-            $wr.n($item);
-        };
+        ($wr:expr, $item:expr) => ($wr.n($item));
         ($wr:expr, $first:expr, $($item:expr),+) => {
             $wr.s($first);
             w!(($wr), $($item),+);
