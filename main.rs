@@ -87,7 +87,7 @@ mod reader {
 }
 
 #[macro_use]
-pub mod writer {
+mod writer {
     use std::{
         fmt::Display,
         io::{BufWriter, Write},
