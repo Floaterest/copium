@@ -1,6 +1,9 @@
 #![allow(unused_macros, unused_variables, unused_mut, dead_code)]
 
-use std::{io::{Read, Write}, collections::*};
+use std::{
+    collections::*,
+    io::{Read, Write},
+};
 
 use reader::Reader;
 use writer::Writer;
@@ -187,6 +190,11 @@ mod writer {
         pub fn s<M, T: Writable<M>>(&mut self, item: T) {
             item.s(self);
         }
+
+        // write "Yes\n" or "No\n"
+        pub fn y(&mut self, b: bool) {
+            self.n(if b { "Yes" } else { "No" });
+        }
     }
 
     /// write ' ' sep, end with '\n'
@@ -209,6 +217,8 @@ fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
     // read n integers into a set
     let set: HashSet<_> = r!(re, [i; n]).collect();
 
+    // write Yes or No
+    wr.y(set.len() == u);
     // writeln an item
     wr.n(q);
     // writeln an iterator
