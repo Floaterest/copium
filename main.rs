@@ -1,6 +1,6 @@
 #![allow(unused_macros, unused_variables, unused_mut, dead_code)]
 
-use std::io::{Read, Write};
+use std::{io::{Read, Write}, collections::*};
 
 use reader::Reader;
 use writer::Writer;
@@ -202,6 +202,19 @@ mod writer {
 // const d8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
 
 fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
+    // read ℕ, ℤ, ℚ, ℕ-1
+    let (n, z, q, u) = r!(re, u, i, f, u1);
+    // read char, String
+    let (c, s) = r!(re, c, s);
+    // read n integers into a set
+    let set: HashSet<_> = r!(re, [i; n]).collect();
+
+    // writeln an item
+    wr.n(q);
+    // writeln an iterator
+    wr.n(set.iter().map(|&x| x * z));
+    // writeln multiple items
+    w!(wr, c, s, u);
 }
 
 #[cfg(debug_assertions)]
