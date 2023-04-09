@@ -105,6 +105,7 @@ mod writer {
         fn s<W: Write>(self, wr: &mut Writer<W>);
     }
 
+
     #[non_exhaustive]
     pub struct Atom;
     impl<T: Display> Writable<Atom> for T {
@@ -195,6 +196,12 @@ mod writer {
         pub fn y(&mut self, b: bool) {
             self.n(if b { "Yes" } else { "No" });
         }
+
+        // writeln then flush
+        pub fn f<M, T: Writable<M>>(&mut self, item: T) {
+            self.n(item);
+            self.writer.flush().expect("Failed to flush");
+        }
     }
 
     /// write ' ' sep, end with '\n'
@@ -223,8 +230,10 @@ fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
     wr.n(q);
     // writeln an iterator
     wr.n(set.iter().map(|&x| x * z));
-    // writeln multiple items
+    // write multiple items
     w!(wr, c, s, u);
+    // writeln then flush
+    wr.f("for interactive tasks");
 }
 
 #[cfg(debug_assertions)]
