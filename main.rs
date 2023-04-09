@@ -55,7 +55,7 @@ mod reader {
             match self.tokens.next() {
                 Some(token) => match token.parse() {
                     Ok(token) => token,
-                    Err(..) => panic!("Cannot parse {token} as {}", type_name::<T>()),
+                    Err(..) => panic!("Cannot parse {} as {}", token, type_name::<T>()),
                 },
                 None => panic!("Token is empty while trying to read {}", type_name::<T>()),
             }
@@ -110,15 +110,15 @@ mod writer {
     pub struct Atom;
     impl<T: Display> Writable<Atom> for T {
         fn w<W: Write>(self, wr: &mut Writer<W>) {
-            write!(wr.writer, "{self}").unwrap();
+            write!(wr.writer, "{}", self).unwrap();
         }
 
         fn n<W: Write>(self, wr: &mut Writer<W>) {
-            writeln!(wr.writer, "{self}").unwrap();
+            writeln!(wr.writer, "{}", self).unwrap();
         }
 
         fn s<W: Write>(self, wr: &mut Writer<W>) {
-            write!(wr.writer, "{self} ").unwrap();
+            write!(wr.writer, "{} ", self).unwrap();
         }
     }
 
