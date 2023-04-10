@@ -1,4 +1,4 @@
-#![allow(unused_macros, unused_variables, unused_mut, dead_code)]
+#![allow(unused_imports, unused_macros, unused_variables, unused_mut, dead_code)]
 
 use std::{
     collections::*,
