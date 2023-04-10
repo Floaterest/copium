@@ -105,7 +105,6 @@ mod writer {
         fn s<W: Write>(self, wr: &mut Writer<W>);
     }
 
-
     #[non_exhaustive]
     pub struct Atom;
     impl<T: Display> Writable<Atom> for T {
@@ -129,7 +128,8 @@ mod writer {
         W: Write,
         T: Display,
         I: Iterator<Item = T>,
-        F: FnMut(T, &mut Writer<W>), {
+        F: FnMut(T, &mut Writer<W>),
+    {
         let mut last: Option<T> = None;
         for item in iter {
             if let Some(last) = last.take() {
@@ -214,6 +214,22 @@ mod writer {
     }
 }
 
+#[cfg(debug_assertions)]
+fn main() {
+    use std::fs::File;
+    solve(
+        Reader::new(File::open("input.txt").unwrap()),
+        Writer::new(std::io::stdout()),
+        // Writer::new(File::create("output.txt").unwrap()),
+    )
+}
+
+#[cfg(not(debug_assertions))]
+fn main() {
+    let (stdin, stdout) = (std::io::stdin(), std::io::stdout());
+    solve(Reader::new(stdin.lock()), Writer::new(stdout.lock()));
+}
+
 // const d8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
 
 fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
@@ -234,20 +250,4 @@ fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
     w!(wr, c, s, u);
     // writeln then flush
     wr.f("for interactive tasks");
-}
-
-#[cfg(debug_assertions)]
-fn main() {
-    use std::fs::File;
-    solve(
-        Reader::new(File::open("input.txt").unwrap()),
-        Writer::new(std::io::stdout()),
-        // Writer::new(File::create("output.txt").unwrap()),
-    )
-}
-
-#[cfg(not(debug_assertions))]
-fn main() {
-    let (stdin, stdout) = (std::io::stdin(), std::io::stdout());
-    solve(Reader::new(stdin.lock()), Writer::new(stdout.lock()));
 }
