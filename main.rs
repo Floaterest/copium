@@ -230,7 +230,7 @@ fn main() {
     solve(Reader::new(stdin.lock()), Writer::new(stdout.lock()));
 }
 
-// const d8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
+// const D8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
 
 fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
     // read ℕ, ℤ, ℚ, ℕ-1
