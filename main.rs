@@ -8,7 +8,7 @@ use std::{
 use reader::Reader;
 use writer::Writer;
 
-#[macro_use]
+// https://github.com/statiolake/proconio-rs/blob/master/proconio/src/source/line.rs
 mod reader {
     use std::{
         any::type_name,
@@ -24,6 +24,13 @@ mod reader {
         tokens: Peekable<SplitWhitespace<'static>>,
         line: Box<str>,
     }
+
+    macro_rules! read {
+        ($(($func:ident, $type:ty)),+) => (
+            $(pub fn $func(&mut self) -> $type { self.next::<$type>() })+
+        )
+    }
+
     impl<R: Read> Reader<R> {
         pub fn new(r: R) -> Reader<R> {
             Reader {
@@ -37,11 +44,9 @@ mod reader {
         fn prepare(&mut self) {
             while self.tokens.peek().is_none() {
                 let mut line = String::new();
-                let n = self.reader.read_line(&mut line).expect("Failed to read line!");
-                if n == 0 {
+                if self.reader.read_line(&mut line).expect("Failed to read line!") == 0 {
                     return; /* EOF */
                 }
-
                 self.line = line.into_boxed_str();
                 self.tokens = unsafe { transmute::<_, &'static str>(&*self.line) }
                     .split_whitespace()
@@ -61,31 +66,19 @@ mod reader {
             }
         }
 
-        pub fn i(&mut self) -> i64 {
-            self.next::<i64>()
-        }
-        pub fn u(&mut self) -> usize {
-            self.next::<usize>()
-        }
+
+        read!((i, i64), (u, usize), (c, char), (s, String), (f, f64));
         pub fn u1(&mut self) -> usize {
             self.u().checked_sub(1).expect("Attempted read 0 as usize1")
         }
-        pub fn c(&mut self) -> char {
-            self.next::<char>()
-        }
-        pub fn s(&mut self) -> String {
-            self.next::<String>()
-        }
-        pub fn f(&mut self) -> f64 {
-            self.next::<f64>()
-        }
     }
 
+    #[macro_export]
     macro_rules! r {
         ($re:expr, $name:ident) => ($re.$name());
         // read iter, e.g. r!(re, [u; n]).collect::<HashSet<_>>()
         ($re:expr, [$name:ident; $len:expr]) => ((0..$len).map(|_| $re.$name()));
-        ($re:expr, $first:ident, $($i:tt),+) => ((r!($re, $first), $(r!($re, $i)),+));
+        ($re:expr, $($item:tt),+) => (($(r!($re, $item)),+));
     }
 }
 
@@ -233,7 +226,7 @@ fn main() {
 // const D8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
 
 fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
-    // read ℕ, ℤ, ℚ, ℕ-1
+    // // read ℕ, ℤ, ℚ, ℕ-1
     let (n, z, q, u) = r!(re, u, i, f, u1);
     // read char, String
     let (c, s) = r!(re, c, s);
