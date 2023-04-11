@@ -25,7 +25,7 @@ mod reader {
         line: Box<str>,
     }
 
-    macro_rules! read {
+    macro_rules! impl_reader {
         ($(($func:ident, $type:ty)),+) => (
             $(pub fn $func(&mut self) -> $type { self.next::<$type>() })+
         )
@@ -66,8 +66,7 @@ mod reader {
             }
         }
 
-
-        read!((i, i64), (u, usize), (c, char), (s, String), (f, f64));
+        impl_reader!((i, i64), (u, usize), (c, char), (s, String), (f, f64));
         pub fn u1(&mut self) -> usize {
             self.u().checked_sub(1).expect("Attempted read 0 as usize1")
         }
@@ -82,7 +81,6 @@ mod reader {
     }
 }
 
-#[macro_use]
 mod writer {
     use std::{
         fmt::Display,
@@ -98,70 +96,55 @@ mod writer {
         fn s<W: Write>(self, wr: &mut Writer<W>);
     }
 
+    // procedural macros go brrrr
+    macro_rules! impl_writer {
+        (Atom, $(($func:ident, $macr:ident, $fmt:literal)),+) => {
+            $(fn $func<W: Write>(self, wr: &mut Writer<W>) {
+                $macr!(wr.writer, $fmt, self).unwrap();
+            })+
+        };
+        (Iter, $($func:ident),+) => {
+            $(fn $func<W: Write>(self, wr: &mut Writer<W>) {
+                let mut last: Option<T> = None;
+                for item in self {
+                    if let Some(last) = last.take() {
+                        last.s(wr);
+                    }
+                    last = Some(item);
+                }
+                if let Some(last) = last.take() {
+                    last.$func(wr);
+                }
+            })+
+        };
+        (Slice, $($func:ident),+) => {
+            $(fn $func<W: Write>(self, wr: &mut Writer<W>) {
+                self.iter().$func(wr);
+            })+
+        };
+        (Writer, $($func:ident),+) => {
+            $(pub fn $func<M, T: Writable<M>>(&mut self, item: T) {
+                item.$func(self);
+            })+
+        };
+    }
+
     #[non_exhaustive]
     pub struct Atom;
     impl<T: Display> Writable<Atom> for T {
-        fn w<W: Write>(self, wr: &mut Writer<W>) {
-            write!(wr.writer, "{}", self).unwrap();
-        }
-
-        fn n<W: Write>(self, wr: &mut Writer<W>) {
-            writeln!(wr.writer, "{}", self).unwrap();
-        }
-
-        fn s<W: Write>(self, wr: &mut Writer<W>) {
-            write!(wr.writer, "{} ", self).unwrap();
-        }
+        impl_writer!(Atom, (w, write, "{}"), (n, writeln, "{}"), (s, write, "{} "));
     }
 
     #[non_exhaustive]
     pub struct Iter;
-    fn write_iter<W, T, F, I>(wr: &mut Writer<W>, mut iter: I, mut end: F)
-    where
-        W: Write,
-        T: Display,
-        I: Iterator<Item = T>,
-        F: FnMut(T, &mut Writer<W>),
-    {
-        let mut last: Option<T> = None;
-        for item in iter {
-            if let Some(last) = last.take() {
-                last.s(wr);
-            }
-            last = Some(item);
-        }
-        if let Some(last) = last.take() {
-            end(last, wr);
-        }
-    }
     impl<T: Display, I: Iterator<Item = T>> Writable<Iter> for I {
-        fn w<W: Write>(self, wr: &mut Writer<W>) {
-            write_iter(wr, self, T::w);
-        }
-
-        fn n<W: Write>(self, wr: &mut Writer<W>) {
-            write_iter(wr, self, T::n);
-        }
-
-        fn s<W: Write>(self, wr: &mut Writer<W>) {
-            write_iter(wr, self, T::s);
-        }
+        impl_writer!(Iter, w, n, s);
     }
 
     #[non_exhaustive]
     pub struct Slice;
     impl<T: Display> Writable<Slice> for &[T] {
-        fn w<W: Write>(self, wr: &mut Writer<W>) {
-            self.iter().w(wr);
-        }
-
-        fn n<W: Write>(self, wr: &mut Writer<W>) {
-            self.iter().n(wr);
-        }
-
-        fn s<W: Write>(self, wr: &mut Writer<W>) {
-            self.iter().s(wr);
-        }
+        impl_writer!(Slice, w, n ,s);
     }
 
     pub struct Writer<W: Write> {
@@ -172,18 +155,8 @@ mod writer {
         pub fn new(w: W) -> Self {
             Self { writer: BufWriter::new(w) }
         }
-        // ' ' sep, no end
-        pub fn w<M, T: Writable<M>>(&mut self, item: T) {
-            item.w(self);
-        }
-        // ' ' sep, end with '\n'
-        pub fn n<M, T: Writable<M>>(&mut self, item: T) {
-            item.n(self);
-        }
-        // ' ' sep, end with ' '
-        pub fn s<M, T: Writable<M>>(&mut self, item: T) {
-            item.s(self);
-        }
+
+        impl_writer!(Writer, w, n, s);
 
         // write "Yes\n" or "No\n"
         pub fn y(&mut self, b: bool) {
@@ -198,6 +171,7 @@ mod writer {
     }
 
     /// write ' ' sep, end with '\n'
+    #[macro_export]
     macro_rules! w {
         ($wr:expr, $item:expr) => ($wr.n($item));
         ($wr:expr, $first:expr, $($item:expr),+) => {
