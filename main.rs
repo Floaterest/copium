@@ -129,19 +129,16 @@ mod writer {
         };
     }
 
-    #[non_exhaustive]
     pub struct Atom;
     impl<T: Display> Writable<Atom> for T {
         impl_writer!(Atom, (w, write, "{}"), (n, writeln, "{}"), (s, write, "{} "));
     }
 
-    #[non_exhaustive]
     pub struct Iter;
     impl<T: Display, I: Iterator<Item = T>> Writable<Iter> for I {
         impl_writer!(Iter, w, n, s);
     }
 
-    #[non_exhaustive]
     pub struct Slice;
     impl<T: Display> Writable<Slice> for &[T] {
         impl_writer!(Slice, w, n ,s);
