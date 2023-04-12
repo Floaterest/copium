@@ -76,7 +76,7 @@ mod reader {
     macro_rules! r {
         ($re:expr, $name:ident) => ($re.$name());
         // read iter, e.g. r!(re, [u; n]).collect::<HashSet<_>>()
-        ($re:expr, [$name:ident; $len:expr]) => ((0..$len).map(|_| $re.$name()));
+        [$re:expr, $name:ident; $len:expr] => ((0..$len).map(|_| $re.$name()));
         ($re:expr, $($item:tt),+) => (($(r!($re, $item)),+));
     }
 }
@@ -202,7 +202,7 @@ fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
     // read char, String
     let (c, s) = r!(re, c, s);
     // read n integers into a set
-    let set: HashSet<_> = r!(re, [i; n]).collect();
+    let set: HashSet<_> = r![re, i; n].collect();
 
     // write Yes or No
     wr.y(set.len() == u);
