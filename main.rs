@@ -197,7 +197,7 @@ fn main() {
 // const D8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
 
 fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
-    // // read ℕ, ℤ, ℚ, ℕ-1
+    // read ℕ, ℤ, ℚ, ℕ-1
     let (n, z, q, u) = r!(re, u, i, f, u1);
     // read char, String
     let (c, s) = r!(re, c, s);
