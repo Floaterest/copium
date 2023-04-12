@@ -141,7 +141,7 @@ mod writer {
 
     pub struct Slice;
     impl<T: Display> Writable<Slice> for &[T] {
-        impl_writer!(Slice, w, n ,s);
+        impl_writer!(Slice, w, n, s);
     }
 
     pub struct Writer<W: Write> {
