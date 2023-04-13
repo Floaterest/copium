@@ -75,9 +75,16 @@ mod reader {
     #[macro_export]
     macro_rules! r {
         ($re:expr, $name:ident) => ($re.$name());
-        [$re:expr, $name:ident; $len:expr] => ((0..$len).map(|_| $re.$name()));
+        ($re:expr, [$name:ident; $len:expr]) => ((0..$len).map(|_| $re.$name()));
         ($re:expr, $($item:tt),+) => (($(r!($re, $item)),+));
     }
+    macro_rules! impl_collection {
+        ($(($macro:ident, $type:ty)),+) => ($(#[macro_export] macro_rules! $macro {
+            ($re:expr, [$name:ident; $len:expr]) => (r!($re, [$name; $len]).collect::<$type>());
+            ($re:expr, [$item:tt; $len:expr]) => ((0..$len).map(|_| $macro!($re, $item)).collect::<$type>());
+        })+)
+    }
+    impl_collection!((rv, Vec<_>));
 }
 
 mod writer {
@@ -201,7 +208,7 @@ fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
     // read char, String
     let (c, s) = r!(re, c, s);
     // read n integers into a set
-    let set: HashSet<_> = r![re, i; n].collect();
+    let set: HashSet<_> = r!(re, [i; n]).collect();
 
     // write Yes or No
     wr.y(set.len() == u);
