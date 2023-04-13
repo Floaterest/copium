@@ -75,7 +75,6 @@ mod reader {
     #[macro_export]
     macro_rules! r {
         ($re:expr, $name:ident) => ($re.$name());
-        // read iter, e.g. r!(re, [u; n]).collect::<HashSet<_>>()
         [$re:expr, $name:ident; $len:expr] => ((0..$len).map(|_| $re.$name()));
         ($re:expr, $($item:tt),+) => (($(r!($re, $item)),+));
     }
