@@ -84,7 +84,7 @@ mod reader {
             ($re:expr, [$item:tt; $len:expr]) => ((0..$len).map(|_| $macro!($re, $item)).collect::<$type>());
         })+)
     }
-    impl_collection!((rv, Vec<_>));
+    impl_collection!((rv, Vec<_>), (rs, HashSet<_>), (rd, VecDeque<_>), (rh, BinaryHeap<_>));
 }
 
 mod writer {
@@ -208,14 +208,14 @@ fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
     // read char, String
     let (c, s) = r!(re, c, s);
     // read n integers into a set
-    let set: HashSet<_> = r!(re, [i; n]).collect();
+    let set = rs!(re, [i; n]);
 
     // write Yes or No
     wr.y(set.len() == u);
     // writeln an item
     wr.n(q);
     // writeln an iterator
-    wr.n(set.iter().map(|&x| x * z));
+    wr.n(set.iter());
     // write multiple items
     w!(wr, c, s, u);
     // writeln then flush
