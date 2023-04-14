@@ -75,13 +75,13 @@ mod reader {
     #[macro_export]
     macro_rules! r {
         ($re:expr, $func:ident) => ($re.$func());
-        ($re:expr, [$func:ident; $len:expr]) => ((0..$len).map(|_| $re.$func()));
+        ($re:expr, [$func:ident; $len:expr]) => (std::iter::repeat_with(|| $re.$func()).take($len));
         ($re:expr, $($item:tt),+) => (($(r!($re, $item)),+));
     }
     macro_rules! impl_collection {
         ($(($macro:ident, $type:ty)),+) => ($(#[macro_export] macro_rules! $macro {
             ($re:expr, [$func:ident; $len:expr]) => (r!($re, [$func; $len]).collect::<$type>());
-            ($re:expr, [$item:tt; $len:expr]) => ((0..$len).map(|_| $macro!($re, $item)).collect::<$type>());
+            ($re:expr, [$item:tt; $len:expr]) => (std::iter::repeat_with(|| $macro!($re, $item)).take($len).collect::<$type>());
         })+)
     }
     impl_collection!((rv, Vec<_>), (rs, HashSet<_>), (rd, VecDeque<_>), (rh, BinaryHeap<_>));
