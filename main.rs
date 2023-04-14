@@ -1,22 +1,18 @@
 #![allow(unused_imports, unused_macros, unused_variables, unused_mut, dead_code)]
 
-use std::{
-    collections::*,
-    io::{Read, Write},
-};
+use std::collections::*;
+use std::io::{Read, Write};
 
 use reader::Reader;
 use writer::Writer;
 
 // https://github.com/statiolake/proconio-rs/blob/master/proconio/src/source/line.rs
 mod reader {
-    use std::{
-        any::type_name,
-        io::{BufRead, BufReader, Read},
-        iter::Peekable,
-        mem::transmute,
-        str::{FromStr, SplitWhitespace},
-    };
+    use std::any::type_name;
+    use std::io::{BufRead, BufReader, Read};
+    use std::iter::Peekable;
+    use std::mem::transmute;
+    use std::str::{FromStr, SplitWhitespace};
 
     #[derive(Debug)]
     pub struct Reader<R: Read> {
@@ -88,10 +84,8 @@ mod reader {
 }
 
 mod writer {
-    use std::{
-        fmt::Display,
-        io::{BufWriter, Write},
-    };
+    use std::fmt::Display;
+    use std::io::{BufWriter, Write};
 
     pub trait Writable<T> {
         /// write ' ' sep, no end
