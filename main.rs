@@ -74,13 +74,13 @@ mod reader {
 
     #[macro_export]
     macro_rules! r {
-        ($re:expr, $name:ident) => ($re.$name());
-        ($re:expr, [$name:ident; $len:expr]) => ((0..$len).map(|_| $re.$name()));
+        ($re:expr, $func:ident) => ($re.$func());
+        ($re:expr, [$func:ident; $len:expr]) => ((0..$len).map(|_| $re.$func()));
         ($re:expr, $($item:tt),+) => (($(r!($re, $item)),+));
     }
     macro_rules! impl_collection {
         ($(($macro:ident, $type:ty)),+) => ($(#[macro_export] macro_rules! $macro {
-            ($re:expr, [$name:ident; $len:expr]) => (r!($re, [$name; $len]).collect::<$type>());
+            ($re:expr, [$func:ident; $len:expr]) => (r!($re, [$func; $len]).collect::<$type>());
             ($re:expr, [$item:tt; $len:expr]) => ((0..$len).map(|_| $macro!($re, $item)).collect::<$type>());
         })+)
     }
