@@ -1,11 +1,12 @@
-#![allow(unused_macros, unused_variables, unused_mut, dead_code)]
+#![allow(unused_imports, unused_macros, unused_variables, unused_mut, dead_code)]
 
+use std::collections::*;
 use std::io::{Read, Write};
 
 use reader::Reader;
 use writer::Writer;
 
-#[macro_use]
+// https://github.com/statiolake/proconio-rs/blob/master/proconio/src/source/line.rs
 mod reader {
     use std::any::type_name;
     use std::io::{BufRead, BufReader, Read};
@@ -18,6 +19,12 @@ mod reader {
         pub reader: BufReader<R>,
         tokens: Peekable<SplitWhitespace<'static>>,
         line: Box<str>,
+    }
+
+    macro_rules! impl_reader {
+        ($(($func:ident, $type:ty)),+) => (
+            $(pub fn $func(&mut self) -> $type { self.next::<$type>() })+
+        )
     }
 
     impl<R: Read> Reader<R> {
@@ -33,89 +40,110 @@ mod reader {
         fn prepare(&mut self) {
             while self.tokens.peek().is_none() {
                 let mut line = String::new();
-                let n = self.reader.read_line(&mut line).expect("Failed to read line!");
-                if n == 0 { return; /* EOF */ }
-
+                if self.reader.read_line(&mut line).expect("Failed to read line!") == 0 {
+                    return; /* EOF */
+                }
                 self.line = line.into_boxed_str();
-                self.tokens = unsafe {
-                    transmute::<_, &'static str>(&*self.line)
-                }.split_whitespace().peekable();
+                self.tokens = unsafe { transmute::<_, &'static str>(&*self.line) }
+                    .split_whitespace()
+                    .peekable();
             }
         }
 
         /// get next token
-        pub fn token<T: FromStr>(&mut self) -> T {
+        pub fn next<T: FromStr>(&mut self) -> T {
             self.prepare();
             match self.tokens.next() {
                 Some(token) => match token.parse() {
-                    Ok(value) => value,
-                    Err(..) => panic!("Cannot parse {} as {}", token, type_name::<T>())
+                    Ok(token) => token,
+                    Err(..) => panic!("Cannot parse {} as {}", token, type_name::<T>()),
                 },
-                None => panic!("Token is empty while trying to read {}", type_name::<T>())
+                None => panic!("Token is empty while trying to read {}", type_name::<T>()),
             }
         }
 
-        pub fn i(&mut self) -> i64 { self.token::<i64>() }
-        pub fn f(&mut self) -> f64 { self.token::<f64>() }
-        pub fn u(&mut self) -> usize { self.token::<usize>() }
-        pub fn u1(&mut self) -> usize { self.token::<usize>() - 1 }
-        pub fn c(&mut self) -> char { self.token::<char>() }
-        pub fn s(&mut self) -> String { self.token::<String>() }
-        pub fn b(&mut self) -> Vec<u8> { self.token::<String>().into_bytes() }
+        impl_reader!((i, i64), (u, usize), (c, char), (s, String), (f, f64));
+        pub fn u1(&mut self) -> usize {
+            self.u().checked_sub(1).expect("Attempted read 0 as usize1")
+        }
     }
 
+    #[macro_export]
     macro_rules! r {
-        // read iter, e.g. re!(r, [i32;n]).collect::<HashSet<_>>()
-        ($r:expr, [$type:ty; $len:expr]) => ((0..$len).map(|_| $r.token::<$type>()));
-        // read tuple, e.g. re!(r, usize, i32, String)
-        ($r:expr, $($type:ty),+) => (($($r.token::<$type>()),+));
+        ($re:expr, $func:ident) => ($re.$func());
+        ($re:expr, [$func:ident; $len:expr]) => (std::iter::repeat_with(|| $re.$func()).take($len));
+        ($re:expr, $($item:tt),+) => (($(r!($re, $item)),+));
     }
+    macro_rules! impl_collection {
+        ($(($macro:ident, $type:ty)),+) => ($(#[macro_export] macro_rules! $macro {
+            ($re:expr, [$func:ident; $len:expr]) => (r!($re, [$func; $len]).collect::<$type>());
+            ($re:expr, [$item:tt; $len:expr]) => (std::iter::repeat_with(|| $macro!($re, $item)).take($len).collect::<$type>());
+        })+)
+    }
+    impl_collection!((rv, Vec<_>), (rs, HashSet<_>), (rd, VecDeque<_>), (rh, BinaryHeap<_>));
 }
 
-#[macro_use]
 mod writer {
     use std::fmt::Display;
     use std::io::{BufWriter, Write};
 
-    //#region Writable Trait
-    pub trait Writable<Mode> {
-        fn write_to<W: Write>(self, w: &mut W, sep: &str, end: &str);
+    pub trait Writable<T> {
+        /// write ' ' sep, no end
+        fn w<W: Write>(self, wr: &mut Writer<W>);
+        /// write ' ' sep, '\n' end
+        fn n<W: Write>(self, wr: &mut Writer<W>);
+        /// write ' ' sep, ' ' end
+        fn s<W: Write>(self, wr: &mut Writer<W>);
     }
 
-    #[non_exhaustive]
-    pub struct One;
-
-    impl<T: Display> Writable<One> for T {
-        fn write_to<W: Write>(self, w: &mut W, sep: &str, end: &str) {
-            write!(w, "{}{}", self, end).unwrap();
-        }
+    // procedural macros go brrrr
+    macro_rules! impl_writer {
+        (Atom, $(($func:ident, $macr:ident, $fmt:literal)),+) => {
+            $(fn $func<W: Write>(self, wr: &mut Writer<W>) {
+                $macr!(wr.writer, $fmt, self).unwrap();
+            })+
+        };
+        (Iter, $($func:ident),+) => {
+            $(fn $func<W: Write>(self, wr: &mut Writer<W>) {
+                let mut last: Option<T> = None;
+                for item in self {
+                    if let Some(last) = last.take() {
+                        last.s(wr);
+                    }
+                    last = Some(item);
+                }
+                if let Some(last) = last.take() {
+                    last.$func(wr);
+                }
+            })+
+        };
+        (Slice, $($func:ident),+) => {
+            $(fn $func<W: Write>(self, wr: &mut Writer<W>) {
+                self.iter().$func(wr);
+            })+
+        };
+        (Writer, $($func:ident),+) => {
+            $(pub fn $func<M, T: Writable<M>>(&mut self, item: T) {
+                item.$func(self);
+            })+
+        };
     }
 
-    #[non_exhaustive]
+    pub struct Atom;
+    impl<T: Display> Writable<Atom> for T {
+        impl_writer!(Atom, (w, write, "{}"), (n, writeln, "{}"), (s, write, "{} "));
+    }
+
     pub struct Iter;
-
-    impl<I> Writable<Iter> for I where I: Iterator, I::Item: Display {
-        fn write_to<W: Write>(mut self, w: &mut W, sep: &str, end: &str) {
-            if let Some(val) = self.next() {
-                write!(w, "{}", val).unwrap();
-            } else { return; }
-
-            self.for_each(|val| write!(w, "{}{}", sep, val).unwrap());
-            write!(w, "{}", end).unwrap();
-        }
+    impl<T: Display, I: Iterator<Item = T>> Writable<Iter> for I {
+        impl_writer!(Iter, w, n, s);
     }
 
-    #[non_exhaustive]
     pub struct Slice;
-
     impl<T: Display> Writable<Slice> for &[T] {
-        fn write_to<W: Write>(self, w: &mut W, sep: &str, end: &str) {
-            self.iter().write_to(w, sep, end);
-        }
+        impl_writer!(Slice, w, n, s);
     }
-    //#endregion Writable Trait
 
-    #[derive(Debug)]
     pub struct Writer<W: Write> {
         pub writer: BufWriter<W>,
     }
@@ -124,91 +152,30 @@ mod writer {
         pub fn new(w: W) -> Self {
             Self { writer: BufWriter::new(w) }
         }
-        /// write "YES\n" or "NO\n" given boolean
+
+        impl_writer!(Writer, w, n, s);
+
+        // write "Yes\n" or "No\n"
         pub fn y(&mut self, b: bool) {
-            self.writer.write_all(if b { "Yes\n" } else { "No\n" }.as_bytes()).unwrap();
+            self.n(if b { "Yes" } else { "No" });
         }
-        /// no sep, end with '\n'
-        pub fn w<M, T: Writable<M>>(&mut self, val: T) {
-            val.write_to(&mut self.writer, "", "");
-        }
-        /// no sep, end with '\n'
-        pub fn n<M, T: Writable<M>>(&mut self, val: T) {
-            val.write_to(&mut self.writer, "", "\n");
-        }
-        /// '\n' separated, end with '\n'
-        pub fn nn<M, T: Writable<M>>(&mut self, val: T) {
-            val.write_to(&mut self.writer, "\n", "\n");
-        }
-        /// write with '\n' and flush
-        pub fn nf<M, T: Writable<M>>(&mut self, val: T) {
-            val.write_to(&mut self.writer, "", "\n");
-            self.writer.flush().expect("Failed to flush!");
-        }
-        /// space sep, end with '\n'
-        pub fn sn<M, T: Writable<M>>(&mut self, val: T) {
-            val.write_to(&mut self.writer, " ", "\n");
-        }
-        /// in case the task asks for some wacky sep or end
-        pub fn wr<M, T: Writable<M>>(&mut self, val: T, sep: &str, end: &str) {
-            val.write_to(&mut self.writer, sep, end);
+
+        // writeln then flush
+        pub fn f<M, T: Writable<M>>(&mut self, item: T) {
+            self.n(item);
+            self.writer.flush().expect("Failed to flush");
         }
     }
 
-    macro_rules! wsn {
-        // e.g. wsn!(wr, 10, -50, "wot");
-        ($wr:expr, $first:expr, $($val:expr),*) => {
-            // write multiple vars, space sep, end with '\n'
-            write!($wr.writer, "{}", $first).unwrap();
-            ($(write!($wr.writer, " {}", $val).unwrap()),*);
-            write!($wr.writer, "\n").unwrap();
+    /// write ' ' sep, end with '\n'
+    #[macro_export]
+    macro_rules! w {
+        ($wr:expr, $item:expr) => ($wr.n($item));
+        ($wr:expr, $first:expr, $($item:expr),+) => {
+            $wr.s($first);
+            w!(($wr), $($item),+);
         };
     }
-    macro_rules! wbn {
-        ($wr:expr, $($bytes:expr),*) => {
-            // write &[u8] consecutively (no sep) and end with '\n'
-            ($($wr.writer.write(&$bytes).unwrap()),*);
-            write!($wr.writer, "\n").unwrap();
-        };
-    }
-}
-
-// const d8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
-
-fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
-    let n: usize = re.u();
-    let i: i64 = re.i();
-    let f: f64 = re.f();
-    let u: usize = re.u1(); // re.u() -1
-    let c: char = re.c();
-    // read multiple values
-    let (i, f) = r!(re, i32, f32);
-    let (i, f) = (re.i(), re.f());
-    // read string
-    let s: String = re.s();
-    // or as bytes
-    let bs: Vec<u8> = re.b();
-    // read n items, collect to vec
-    let v: Vec<_> = r!(re,[i32;n]).collect();
-    // collect to HashSet
-    let set: HashSet<_> = r!(re,[usize;n]).map(|n| n * 2).collect();
-
-    // write "YES\n" or "NO\n"
-    wr.y(n == v.len());
-    // write space sep, '\n' end
-    wsn!(wr, i, f);
-    // write each bytes as char, no sep, '\n' end
-    wbn!(wr, bs);
-    // no sep, '\n' end
-    wr.n(set.iter());
-    // '\n' sep, '\n' end
-    wr.nn(&[10, 20, 30]);
-    // no sep, '\n' end, then flush (for interactive)
-    wr.nf("interactive");
-    // space sep, '\n' end
-    wr.sn(&v);
-
-    // ご武運を
 }
 
 #[cfg(debug_assertions)]
@@ -225,4 +192,26 @@ fn main() {
 fn main() {
     let (stdin, stdout) = (std::io::stdin(), std::io::stdout());
     solve(Reader::new(stdin.lock()), Writer::new(stdout.lock()));
+}
+
+// const D8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
+
+fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
+    // read ℕ, ℤ, ℚ, ℕ-1
+    let (n, z, q, u) = r!(re, u, i, f, u1);
+    // read char, String
+    let (c, s) = r!(re, c, s);
+    // read n integers into a set
+    let set = rs!(re, [i; n]);
+
+    // write Yes or No
+    wr.y(set.len() == u);
+    // writeln an item
+    wr.n(q);
+    // writeln an iterator
+    wr.n(set.iter());
+    // write multiple items
+    w!(wr, c, s, u);
+    // writeln then flush
+    wr.f("for interactive tasks");
 }
