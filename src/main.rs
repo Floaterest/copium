@@ -7,7 +7,7 @@ use reader::Reader;
 use writer::Writer;
 
 // https://github.com/statiolake/proconio-rs/blob/master/proconio/src/source/line.rs
-mod reader {
+pub mod reader {
     use std::any::type_name;
     use std::io::{BufRead, BufReader, Read};
     use std::iter::Peekable;
@@ -83,7 +83,7 @@ mod reader {
     impl_collection!((rv, Vec<_>), (rs, HashSet<_>), (rd, VecDeque<_>), (rh, BinaryHeap<_>));
 }
 
-mod writer {
+pub mod writer {
     use std::fmt::Display;
     use std::io::{BufWriter, Write};
 
@@ -197,21 +197,5 @@ fn main() {
 // const D8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
 
 fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
-    // read ℕ, ℤ, ℚ, ℕ-1
-    let (n, z, q, u) = r!(re, u, i, f, u1);
-    // read char, String
-    let (c, s) = r!(re, c, s);
-    // read n integers into a set
-    let set = rs!(re, [i; n]);
-
-    // write Yes or No
-    wr.y(set.len() == u);
-    // writeln an item
-    wr.n(q);
-    // writeln an iterator
-    wr.n(set.iter());
-    // write multiple items
-    w!(wr, c, s, u);
-    // writeln then flush
-    wr.f("for interactive tasks");
+    //
 }
