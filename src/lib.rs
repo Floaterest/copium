@@ -3,10 +3,9 @@
 mod main;
 
 #[cfg(test)]
-mod tests {
+mod read_tests {
     use super::*;
     use main::reader::Reader;
-    // use main::writer::Writer;
 
     #[test]
     fn read_atom() {
@@ -31,7 +30,7 @@ mod tests {
         assert_eq!(s, "str");
     }
     #[test]
-    fn read_macro_iter() {
+    fn read_iter() {
         let mut re = Reader::new("1 2 3 4 5".as_bytes());
         let v: Vec<_> = r!(re, [u; 5]).collect();
         assert_eq!(v, [1, 2, 3, 4, 5]);
