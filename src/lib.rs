@@ -36,4 +36,10 @@ mod tests {
         let v: Vec<_> = r!(re, [u; 5]).collect();
         assert_eq!(v, [1, 2, 3, 4, 5]);
     }
+
+    #[test]
+    fn read_vec() {
+        let mut re = Reader::new("1 -2 3 -4 5 -6".as_bytes());
+        assert_eq!(rv!(re, [i; 6]), [1, -2, 3, -4, 5, -6]);
+    }
 }
