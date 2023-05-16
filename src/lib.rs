@@ -79,9 +79,9 @@ mod read_tests {
 
 #[cfg(test)]
 mod write_tests {
-    use std::error::Error;
     use super::*;
     use main::writer::Writer;
+    use std::error::Error;
     // use std::collections::{BinaryHeap, HashSet, VecDeque};
 
     #[test]
@@ -93,6 +93,17 @@ mod write_tests {
         wr.n(2.0);
         let s = String::from_utf8(wr.writer.into_inner()?)?;
         assert_eq!(s, "-10 wr 2\n");
+        Ok(())
+    }
+
+    #[test]
+    fn write_iter() -> Result<(), Box<dyn Error>> {
+        let mut wr = Writer::new(Vec::new());
+        wr.w(0..2);
+        wr.s((0x61..=0x63).flat_map(std::char::from_u32));
+        wr.n("de".chars());
+        let s = String::from_utf8(wr.writer.into_inner()?)?;
+        assert_eq!(s, "0 1a b c d e\n");
         Ok(())
     }
 }
