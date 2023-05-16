@@ -89,10 +89,10 @@ mod write_tests {
         let mut wr = Writer::new(Vec::new());
         wr.w(-1);
         wr.s(0);
-        wr.s("wr");
+        wr.f("wr");
         wr.n(2.0);
         let s = String::from_utf8(wr.writer.into_inner()?)?;
-        assert_eq!(s, "-10 wr 2\n");
+        assert_eq!(s, "-10 wr\n2\n");
         Ok(())
     }
 
