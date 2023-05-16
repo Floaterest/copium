@@ -79,20 +79,20 @@ mod read_tests {
 
 #[cfg(test)]
 mod write_tests {
+    use std::error::Error;
     use super::*;
-    use main::writer::{Writable, Writer};
+    use main::writer::Writer;
     // use std::collections::{BinaryHeap, HashSet, VecDeque};
 
     #[test]
-    fn write_atom() {
+    fn write_atom() -> Result<(), Box<dyn Error>> {
         let mut wr = Writer::new(Vec::new());
-        (-1i32).w(&mut wr);
-        0u32.s(&mut wr);
-        2f64.n(&mut wr);
         wr.w(-1);
         wr.s(0);
+        wr.s("wr");
         wr.n(2.0);
-        let s = String::from_utf8(wr.writer.into_inner().unwrap()).unwrap();
-        assert_eq!(s, "-10 2\n-10 2\n");
+        let s = String::from_utf8(wr.writer.into_inner()?)?;
+        assert_eq!(s, "-10 wr 2\n");
+        Ok(())
     }
 }
