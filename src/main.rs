@@ -117,11 +117,6 @@ pub mod writer {
                 }
             })+
         };
-        (Slice, $($func:ident),+) => {
-            $(fn $func<W: Write>(self, wr: &mut Writer<W>) {
-                self.iter().$func(wr);
-            })+
-        };
         (Writer, $($func:ident),+) => {
             $(pub fn $func<M, T: Writable<M>>(&mut self, item: T) {
                 item.$func(self);
@@ -137,11 +132,6 @@ pub mod writer {
     pub struct Iter;
     impl<T: Display, I: Iterator<Item = T>> Writable<Iter> for I {
         impl_writer!(Iter, w, n, s);
-    }
-
-    pub struct Slice;
-    impl<T: Display> Writable<Slice> for &[T] {
-        impl_writer!(Slice, w, n, s);
     }
 
     pub struct Writer<W: Write> {
