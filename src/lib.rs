@@ -106,4 +106,14 @@ mod write_tests {
         assert_eq!(s, "0 1a b c d e\n");
         Ok(())
     }
+
+    #[test]
+    fn write_yes() -> Result<(), Box<dyn Error>> {
+        let mut wr = Writer::new(Vec::new());
+        wr.y(true);
+        wr.y(false);
+        let s = String::from_utf8(wr.writer.into_inner()?)?;
+        assert_eq!(s, "Yes\nNo\n");
+        Ok(())
+    }
 }
