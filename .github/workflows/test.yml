@@ -36,7 +36,8 @@ jobs:
       - name: Test
         env: { RUST_BACKTRACE: full }
         run: |
-          cargo nextest run --profile ci
+          cargo nextest run
+          tree target
           mv target/nextest/ci/results.xml target/nextest/ci/results.xml
 
       - name: Prepare test results
