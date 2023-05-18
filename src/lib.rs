@@ -116,4 +116,13 @@ mod write_tests {
         assert_eq!(s.to_lowercase(), "yes\nno\n");
         Ok(())
     }
+
+    #[test]
+    fn write_macro() -> Result<(), Box<dyn Error>> {
+        let mut wr = Writer::new(Vec::new());
+        w!(wr, 1, -2, 3.0,  4..=5, "a");
+        let s = String::from_utf8(wr.writer.into_inner()?)?;
+        assert_eq!(s, "1 -2 3 4 5 a\n");
+        Ok(())
+    }
 }
