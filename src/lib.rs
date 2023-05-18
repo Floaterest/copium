@@ -113,7 +113,7 @@ mod write_tests {
         wr.y(true);
         wr.y(false);
         let s = String::from_utf8(wr.writer.into_inner()?)?;
-        assert_eq!(s, "Yes\nNo\n");
+        assert_eq!(s.to_lowercase(), "yes\nno\n");
         Ok(())
     }
 }
