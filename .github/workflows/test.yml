@@ -1,0 +1,60 @@
+name: Test
+
+on:
+  workflow_dispatch:
+  push:
+    paths: ['src/*.rs']
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.42.0
+
+      - name: Show toolchain info
+        run: cargo --version --verbose
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: Cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Install cargo-nextest
+        uses: taiki-e/install-action@nextest
+
+      - name: Test
+        env: { RUST_BACKTRACE: full }
+        run: |
+          cargo nextest run --profile ci
+          mv target/nextest/ci/results.xml target/nextest/ci/results.xml
+
+      - name: Prepare test results
+        run: |
+          mkdir -p test-results
+          mv target/nextest/ci/results.xml test-results/
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: test-results
+  event-upload:
+    needs: test
+    name: Upload Test Event
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/upload-artifact@v3
+        with:
+          name: test-event
+          path: ${{ github.event_path }}
