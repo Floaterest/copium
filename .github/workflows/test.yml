@@ -3,7 +3,9 @@ name: Test
 on:
   workflow_dispatch:
   push:
-    paths: ['src/*.rs']
+    paths:
+      - src/*.rs
+      - .github/workflows/test.yml
 
 env:
   CARGO_TERM_COLOR: always
