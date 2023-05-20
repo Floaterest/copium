@@ -1,0 +1,5 @@
+[profile.default.junit]
+path = "results.xml"
+# These are the default values, specified for clarity.
+store-success-output = true
+store-failure-output = true
