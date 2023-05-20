@@ -37,15 +37,13 @@ jobs:
 
       - name: Test
         env: { RUST_BACKTRACE: full }
-        run: |
-          cargo nextest run
+        run: cargo nextest run
           tree target
-          mv target/nextest/ci/results.xml target/nextest/ci/results.xml
 
       - name: Prepare test results
         run: |
           mkdir -p test-results
-          mv target/nextest/ci/results.xml test-results/
+          mv target/nextest/default/results.xml test-results/
 
       - name: Upload test results
         uses: actions/upload-artifact@v3
