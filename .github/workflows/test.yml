@@ -38,23 +38,3 @@ jobs:
       - name: Test
         env: { RUST_BACKTRACE: full }
         run: cargo nextest run
-
-      - name: Prepare test results
-        run: |
-          mkdir -p test-results
-          mv target/nextest/default/results.xml test-results/
-
-      - name: Upload test results
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-results
-          path: test-results
-  event-upload:
-    needs: test
-    name: Upload Test Event
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/upload-artifact@v3
-        with:
-          name: test-event
-          path: ${{ github.event_path }}
