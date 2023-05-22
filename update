@@ -49,8 +49,7 @@ def main(args):
 
     # git
     system(f'git add {dest}')
-    domain = domain.split(".")[0]
-    cmd = f'git commit -m "{act}({domain}) {contest} {task} {comment}" -m "{url}"'
+    cmd = f'git commit -m "{act}({contest} {task}) {comment}" -m "{url}"'
     system(cmd)
 
 
