@@ -1,11 +1,7 @@
 #!/usr/bin/python3
 
-import os
-import argparse
+import os, sys, argparse
 from codecs import open
-
-COMMENT = '// %s\n'
-
 
 def convert(url: str):
     parts = url.removeprefix('https://').removesuffix('/').split('/')
@@ -20,13 +16,6 @@ def convert(url: str):
         case _:
             exit('Unknown url: ' + '/'.join(parts))
 
-
-def write(src: str, dest: str, url: str):
-    with open(src, 'r', 'utf8') as fi, open(dest, 'w', 'utf8') as fo:
-        fo.write(COMMENT % url)
-        fo.write(fi.read())
-
-
 def main(args):
     url = args.url.lower()
     domain, contest, task = convert(url)
@@ -38,11 +27,17 @@ def main(args):
 
     # copy file
     print(copy, args.src, '-->', dest)
-    system = print
-    if not args.dry:
+    if args.dry:
+        system = print
+        ofstream = sys.stdout
+    else:
         os.makedirs(os.path.dirname(dest), exist_ok=True)
-        write(args.src, dest, url)
         system = os.system
+        ofstream = open(dest, 'w', 'utf8')
+
+    with open(args.src, 'r', 'utf8') as ifstream:
+        ofstream.write(f'// {url}\n')
+        ofstream.write(ifstream.read())
 
     # git
     system(f'git add {dest}')
