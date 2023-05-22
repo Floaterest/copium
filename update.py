@@ -31,7 +31,7 @@ def main(src: str, url: str, comment: str):
     domain, contest, task = convert(url)
     dest = os.path.join(domain, contest, task) + os.path.splitext(src)[1]
     if os.path.exists(dest):
-        act, copy = 'update', '\033[91mOverride\033[00m'
+        act, copy = 'update', '\033[93mReplace\033[00m'
     else:
         act, copy = 'add', '\033[92mCopy\033[00m'
 
