@@ -27,7 +27,11 @@ def write(src: str, dest: str, url: str):
         fo.write(fi.read())
 
 
-def main(src: str, url: str, comment: str):
+def main(args):
+    src = args.src
+    url = args.url.lower()
+    comment = ' '.join(args.comment)
+
     domain, contest, task = convert(url)
     dest = os.path.join(domain, contest, task) + os.path.splitext(src)[1]
     if os.path.exists(dest):
@@ -36,22 +40,26 @@ def main(src: str, url: str, comment: str):
         act, copy = 'add', '\033[92mCopy\033[00m'
 
     # copy file
-    os.makedirs(os.path.dirname(dest), exist_ok=True)
     print(copy, src, '-->', dest)
-    write(src, dest, url)
+    system = print
+    if not args.dry:
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        write(src, dest, url)
+        system = os.system
 
     # git
-    os.system(f'git add {dest}')
+    system(f'git add {dest}')
     domain = domain.split(".")[0]
     cmd = f'git commit -m "{act}({domain}) {contest} {task} {comment}" -m "{url}"'
-    os.system(cmd)
+    system(cmd)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('src', type=str, help='path to submission code')
     parser.add_argument('url', type=str, help='task url')
+    parser.add_argument('--dry', '-d', action='store_true', help='dry run')
     parser.add_argument('comment', nargs='*', default='', help='comments')
 
     args = parser.parse_args()
-    main(args.src, args.url.lower(), ' '.join(args.comment))
+    main(args)
