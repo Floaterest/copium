@@ -28,28 +28,25 @@ def write(src: str, dest: str, url: str):
 
 
 def main(args):
-    src = args.src
     url = args.url.lower()
-    comment = args.comment
-
     domain, contest, task = convert(url)
-    dest = os.path.join(domain, contest, task) + os.path.splitext(src)[1]
+    dest = os.path.join(domain, contest, task) + os.path.splitext(args.src)[1]
     if os.path.exists(dest):
         act, copy = 'update', '\033[93mReplace\033[00m'
     else:
         act, copy = 'add', '\033[92mCopy\033[00m'
 
     # copy file
-    print(copy, src, '-->', dest)
+    print(copy, args.src, '-->', dest)
     system = print
     if not args.dry:
         os.makedirs(os.path.dirname(dest), exist_ok=True)
-        write(src, dest, url)
+        write(args.src, dest, url)
         system = os.system
 
     # git
     system(f'git add {dest}')
-    cmd = f'git commit -m "{act}({contest} {task}) {comment}" -m "{url}"'
+    cmd = f'git commit -m "{act}({contest} {task}) {args.comment}" -m "{url}"'
     system(cmd)
 
 
