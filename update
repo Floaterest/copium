@@ -36,11 +36,9 @@ def main(args):
     else:
         system = os.system
         os.makedirs(path.dirname(dest), exist_ok=True)
-        with open(dest, 'w', 'utf8') as ofstream, open(
-            args.src, 'r', 'utf8'
-        ) as ifstream:
-            ofstream.write(f'// {url}\n')
-            ofstream.write(ifstream.read())
+        with open(dest, 'w', 'utf8') as fo, open(args.src, 'r', 'utf8') as fi:
+            fo.write(f'// {url}\n')
+            fo.write(fi.read())
 
     # git
     system(f'git add {dest}')
