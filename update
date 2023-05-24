@@ -1,7 +1,9 @@
 #!/usr/bin/python3
 
-import os, sys, argparse
+import os, argparse
+from os import path
 from codecs import open
+
 
 def convert(url: str):
     parts = url.removeprefix('https://').removesuffix('/').split('/')
@@ -16,11 +18,15 @@ def convert(url: str):
         case _:
             exit('Unknown url: ' + '/'.join(parts))
 
+
 def main(args):
     url = args.url.lower()
     domain, contest, task = convert(url)
-    dest = os.path.join(domain, contest, task) + os.path.splitext(args.src)[1]
-    if os.path.exists(dest):
+    dest = (
+        path.join(path.dirname(__file__), domain, contest, task)
+        + path.splitext(args.src)[1]
+    )
+    if path.exists(dest):
         act, copy = 'update', '\033[93mReplace\033[00m'
     else:
         act, copy = 'add', '\033[92mCopy\033[00m'
@@ -29,15 +35,14 @@ def main(args):
     print(copy, args.src, '-->', dest)
     if args.dry:
         system = print
-        ofstream = sys.stdout
     else:
-        os.makedirs(os.path.dirname(dest), exist_ok=True)
         system = os.system
-        ofstream = open(dest, 'w', 'utf8')
-
-    with open(args.src, 'r', 'utf8') as ifstream:
-        ofstream.write(f'// {url}\n')
-        ofstream.write(ifstream.read())
+        os.makedirs(path.dirname(dest), exist_ok=True)
+        with open(dest, 'w', 'utf8') as ofstream, open(
+            args.src, 'r', 'utf8'
+        ) as ifstream:
+            ofstream.write(f'// {url}\n')
+            ofstream.write(ifstream.read())
 
     # git
     system(f'git add {dest}')
