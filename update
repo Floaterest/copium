@@ -44,8 +44,8 @@ def main(args):
 
     # git
     system(f'git add {dest}')
-    comment = f' {args.comment}' if args.comment else ''
-    cmd = f'git commit -m "{act}({contest} {task}){comment}" -m "{url}"'
+    comment = f' ({args.comment})' if args.comment else ''
+    cmd = f'git commit -m "{act}({contest}) {task}{comment}" -m "{url}"'
     system(cmd)
 
 
