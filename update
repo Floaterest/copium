@@ -22,10 +22,8 @@ def convert(url: str):
 def main(args):
     url = args.url.lower()
     domain, contest, task = convert(url)
-    dest = (
-        path.join(path.dirname(__file__), domain, contest, task)
-        + path.splitext(args.src)[1]
-    )
+    dest = path.dirname(path.realpath(__file__))
+    dest = path.join(dest, domain, contest, task) + path.splitext(args.src)[1]
     if path.exists(dest):
         act, copy = 'update', '\033[93mReplace\033[00m'
     else:
