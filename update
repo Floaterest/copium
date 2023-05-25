@@ -19,6 +19,17 @@ def convert(url: str):
             exit('Unknown url: ' + '/'.join(parts))
 
 
+def write(file: str, dest: str, url: str):
+    match os.path.splitext(file)[1]:
+        case '.rs':
+            prefix = '//'
+        case '.hs':
+            prefix = '--'
+    with open(file, 'r', 'utf8') as fi, open(dest, 'w', 'utf8') as fo:
+        fo.write(f'{prefix} {url}\n')
+        fo.write(fi.read())
+
+
 def main(args):
     url = args.url.lower()
     domain, contest, task = convert(url)
@@ -36,10 +47,7 @@ def main(args):
     else:
         system = os.system
         os.makedirs(path.dirname(dest), exist_ok=True)
-        with open(dest, 'w', 'utf8') as fo, open(args.src, 'r', 'utf8') as fi:
-            fo.write(f'// {url}\n')
-            fo.write(fi.read())
-
+        write(args.src, dest, url)
     # git
     system(f'git add {dest}')
     comment = f' ({args.comment})' if args.comment else ''
