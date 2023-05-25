@@ -34,7 +34,8 @@ def main(args):
     url = args.url.lower()
     domain, contest, task = convert(url)
     dest = path.dirname(path.realpath(__file__))
-    dest = path.join(dest, domain, contest, task) + path.splitext(args.src)[1]
+    ext = path.splitext(args.src)[1]
+    dest = path.join(dest, domain, contest, task) + ext
     if path.exists(dest):
         act, copy = 'update', '\033[93mReplace\033[00m'
     else:
@@ -51,6 +52,7 @@ def main(args):
     # git
     system(f'git add {dest}')
     comment = f' ({args.comment})' if args.comment else ''
+    task = f'{task}{ext}'
     cmd = f'git commit -m "{act}({contest}) {task}{comment}" -m "{url}"'
     system(cmd)
 
