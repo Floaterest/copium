@@ -1,0 +1,40 @@
+name: Test
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - src/*.rs
+      - .github/workflows/test.yml
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.42.0
+
+      - name: Show toolchain info
+        run: cargo --version --verbose
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: Cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Install cargo-nextest
+        uses: taiki-e/install-action@nextest
+
+      - name: Test
+        env: { RUST_BACKTRACE: full }
+        run: cargo nextest run
