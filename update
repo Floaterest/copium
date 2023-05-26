@@ -1,0 +1,68 @@
+#!/usr/bin/python3
+
+import os, argparse
+from os import path
+from codecs import open
+
+
+def convert(url: str):
+    parts = url.removeprefix('https://').removesuffix('/').split('/')
+    domain = parts[0]
+    match parts:
+        case ['codeforces.com', _, contest, _, task]:
+            return [domain, contest, f'{contest}_{task}']
+        case ['atcoder.jp', _, contest, _, task]:
+            return [domain, contest, task]
+        case ['leetcode.com', _, problem]:
+            return [domain, '', problem]
+        case _:
+            exit('Unknown url: ' + '/'.join(parts))
+
+
+def write(file: str, dest: str, url: str):
+    match os.path.splitext(file)[1]:
+        case '.rs':
+            prefix = '//'
+        case '.hs':
+            prefix = '--'
+    with open(file, 'r', 'utf8') as fi, open(dest, 'w', 'utf8') as fo:
+        fo.write(f'{prefix} {url}\n')
+        fo.write(fi.read())
+
+
+def main(args):
+    url = args.url.lower()
+    domain, contest, task = convert(url)
+    dest = path.dirname(path.realpath(__file__))
+    ext = path.splitext(args.src)[1]
+    dest = path.join(dest, domain, contest, task) + ext
+    if path.exists(dest):
+        act, copy = 'update', '\033[93mReplace\033[00m'
+    else:
+        act, copy = 'add', '\033[92mCopy\033[00m'
+
+    # copy file
+    print(copy, args.src, '-->', dest)
+    if args.dry:
+        system = print
+    else:
+        system = os.system
+        os.makedirs(path.dirname(dest), exist_ok=True)
+        write(args.src, dest, url)
+    # git
+    system(f'git add {dest}')
+    comment = f' ({args.comment})' if args.comment else ''
+    task = f'{task}{ext}'
+    cmd = f'git commit -m "{act}({contest}) {task}{comment}" -m "{url}"'
+    system(cmd)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('src', type=str, help='path to submission code')
+    parser.add_argument('url', type=str, help='task url')
+    parser.add_argument('--dry', '-d', action='store_true', help='dry run')
+    parser.add_argument('comment', nargs='?', default='', help='comments')
+
+    args = parser.parse_args()
+    main(args)
