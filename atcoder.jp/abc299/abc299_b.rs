@@ -117,8 +117,8 @@ mod reader {
         // read tuple, e.g. r!(re, usize, i32, String)
         ($re:expr, $($type:ty),+) => (($($re.next::<$type>()),+));
         // read tuple (infered types) e.g. r!(re, 2);
-        ($re:expr, 2) => (($re.next(), $re.next()));
-        ($re:expr, 3) => (($re.next(), $re.next(), $re.next()));
+        // ($re:expr, 2) => (($re.next(), $re.next()));
+        // ($re:expr, 3) => (($re.next(), $re.next(), $re.next()));
     }
 }
 
@@ -243,27 +243,20 @@ fn main() {
 // const d8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
 
 fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
-    let (n, win) = r!(re, usize, usize);
+    let (n, win) = (re.u(), re.u());
     let colors: Vec<_> = r!(re, [usize; n]).collect();
     let color1 = colors[0];
+    let weight = |color| match color {
+        _ if color == win => 2,
+        _ if color == color1 => 1,
+        _ => 0,
+    };
     // (weight, rank, index)
-    wr.n(
-        r!(re, [usize; n])
-            .zip(colors)
-            .enumerate()
-            .map(|(i, (rank, color))| {
-                (
-                    match color {
-                        _ if color == win => 2,
-                        _ if color == color1 => 1,
-                        _ => 0,
-                    },
-                    rank,
-                    i + 1,
-                )
-            })
-            .max()
-            .unwrap()
-            .2
-    );
+    wr.n(r!(re, [usize; n])
+        .zip(colors)
+        .enumerate()
+        .map(|(i, (rank, color))| (weight(color), rank, i + 1))
+        .max()
+        .unwrap()
+        .2);
 }
