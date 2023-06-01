@@ -9,11 +9,7 @@ main :: IO ()
 main = interact $ solve . lines
 
 solve :: [String] -> String
-solve [nab, s] = show $ i + 1
+solve s = show $ maybe 0 (+1) $ elemIndex sum arr
   where
-    i = unwrap $ elemIndex sum arr
-    [_, a, b] = map read $ words nab
-    arr = map read $ words s
+    (_ : a : b : arr) = map read (s >>= words) :: [Int]
     sum = a + b
-
-unwrap (Just n) = n
