@@ -15,9 +15,9 @@ main = interact $ yes . solve . lines
 solve :: [String] -> Bool
 solve (hw : ab) = elem b as
   where
-    as = [d | c <- rotate h a, d <- transpose $ map (rotate w) c]
+    as = [a2 | a1 <- rotate h a, a2 <- transpose $ rotate w <$> a1]
     [h, w] = read <$> words hw
     (a, b) = splitAt h ab
 
 rotate :: Int -> [a] -> [[a]]
-rotate n = take n . (map . take) n . tails . cycle
+rotate n = take n . (take n <$>) . tails . cycle
