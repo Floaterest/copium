@@ -20,4 +20,4 @@ solve (hw : ab) = elem b as
     (a, b) = splitAt h ab
 
 rotate :: Int -> [a] -> [[a]]
-rotate n a = take n $ (map . take) n $ tails $ cycle a
+rotate n = take n . (map . take) n . tails . cycle
