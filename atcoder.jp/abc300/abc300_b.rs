@@ -1,23 +1,19 @@
 // https://atcoder.jp/contests/abc300/tasks/abc300_b
 #![allow(unused_imports, unused_macros, unused_variables, unused_mut, dead_code)]
 
-use std::{
-    collections::*,
-    io::{Read, Write},
-};
+use std::collections::*;
+use std::io::{Read, Write};
 
 use reader::Reader;
 use writer::Writer;
 
-#[macro_use]
+// https://github.com/statiolake/proconio-rs/blob/master/proconio/src/source/line.rs
 mod reader {
-    use std::{
-        any::type_name,
-        io::{BufRead, BufReader, Read},
-        iter::Peekable,
-        mem::transmute,
-        str::{FromStr, SplitWhitespace},
-    };
+    use std::any::type_name;
+    use std::io::{BufRead, BufReader, Read};
+    use std::iter::Peekable;
+    use std::mem::transmute;
+    use std::str::{FromStr, SplitWhitespace};
 
     #[derive(Debug)]
     pub struct Reader<R: Read> {
@@ -25,6 +21,13 @@ mod reader {
         tokens: Peekable<SplitWhitespace<'static>>,
         line: Box<str>,
     }
+
+    macro_rules! impl_reader {
+        ($(($func:ident, $type:ty)),+) => (
+            $(pub fn $func(&mut self) -> $type { self.next::<$type>() })+
+        )
+    }
+
     impl<R: Read> Reader<R> {
         pub fn new(r: R) -> Reader<R> {
             Reader {
@@ -38,11 +41,9 @@ mod reader {
         fn prepare(&mut self) {
             while self.tokens.peek().is_none() {
                 let mut line = String::new();
-                let n = self.reader.read_line(&mut line).expect("Failed to read line!");
-                if n == 0 {
+                if self.reader.read_line(&mut line).expect("Failed to read line!") == 0 {
                     return; /* EOF */
                 }
-
                 self.line = line.into_boxed_str();
                 self.tokens = unsafe { transmute::<_, &'static str>(&*self.line) }
                     .split_whitespace()
@@ -62,40 +63,30 @@ mod reader {
             }
         }
 
-        pub fn i(&mut self) -> i64 {
-            self.next::<i64>()
-        }
-        pub fn u(&mut self) -> usize {
-            self.next::<usize>()
-        }
+        impl_reader!((i, i64), (u, usize), (c, char), (s, String), (f, f64));
         pub fn u1(&mut self) -> usize {
             self.u().checked_sub(1).expect("Attempted read 0 as usize1")
         }
-        pub fn c(&mut self) -> char {
-            self.next::<char>()
-        }
-        pub fn s(&mut self) -> String {
-            self.next::<String>()
-        }
-        pub fn f(&mut self) -> f64 {
-            self.next::<f64>()
-        }
     }
 
+    #[macro_export]
     macro_rules! r {
-        ($re:expr, $name:ident) => ($re.$name());
-        // read iter, e.g. r!(re, [u; n]).collect::<HashSet<_>>()
-        ($re:expr, [$name:ident; $len:expr]) => ((0..$len).map(|_| $re.$name()));
-        ($re:expr, $first:ident, $($i:tt),+) => ((r!($re, $first), $(r!($re, $i)),+));
+        ($re:expr, $func:ident) => ($re.$func());
+        ($re:expr, [$func:ident; $len:expr]) => (std::iter::repeat_with(|| $re.$func()).take($len));
+        ($re:expr, $($item:tt),+) => (($(r!($re, $item)),+));
     }
+    macro_rules! impl_collection {
+        ($(($macro:ident, $type:ty)),+) => ($(#[macro_export] macro_rules! $macro {
+            ($re:expr, [$func:ident; $len:expr]) => (r!($re, [$func; $len]).collect::<$type>());
+            ($re:expr, [$item:tt; $len:expr]) => (std::iter::repeat_with(|| $macro!($re, $item)).take($len).collect::<$type>());
+        })+)
+    }
+    impl_collection!((rv, Vec<_>), (rs, HashSet<_>), (rd, VecDeque<_>), (rh, BinaryHeap<_>));
 }
 
-#[macro_use]
 mod writer {
-    use std::{
-        fmt::Display,
-        io::{BufWriter, Write},
-    };
+    use std::fmt::Display;
+    use std::io::{BufWriter, Write};
 
     pub trait Writable<T> {
         /// write ' ' sep, no end
@@ -106,70 +97,52 @@ mod writer {
         fn s<W: Write>(self, wr: &mut Writer<W>);
     }
 
-    #[non_exhaustive]
+    // procedural macros go brrrr
+    macro_rules! impl_writer {
+        (Atom, $(($func:ident, $macr:ident, $fmt:literal)),+) => {
+            $(fn $func<W: Write>(self, wr: &mut Writer<W>) {
+                $macr!(wr.writer, $fmt, self).unwrap();
+            })+
+        };
+        (Iter, $($func:ident),+) => {
+            $(fn $func<W: Write>(self, wr: &mut Writer<W>) {
+                let mut last: Option<T> = None;
+                for item in self {
+                    if let Some(last) = last.take() {
+                        last.s(wr);
+                    }
+                    last = Some(item);
+                }
+                if let Some(last) = last.take() {
+                    last.$func(wr);
+                }
+            })+
+        };
+        (Slice, $($func:ident),+) => {
+            $(fn $func<W: Write>(self, wr: &mut Writer<W>) {
+                self.iter().$func(wr);
+            })+
+        };
+        (Writer, $($func:ident),+) => {
+            $(pub fn $func<M, T: Writable<M>>(&mut self, item: T) {
+                item.$func(self);
+            })+
+        };
+    }
+
     pub struct Atom;
     impl<T: Display> Writable<Atom> for T {
-        fn w<W: Write>(self, wr: &mut Writer<W>) {
-            write!(wr.writer, "{}", self).unwrap();
-        }
-
-        fn n<W: Write>(self, wr: &mut Writer<W>) {
-            writeln!(wr.writer, "{}", self).unwrap();
-        }
-
-        fn s<W: Write>(self, wr: &mut Writer<W>) {
-            write!(wr.writer, "{} ", self).unwrap();
-        }
+        impl_writer!(Atom, (w, write, "{}"), (n, writeln, "{}"), (s, write, "{} "));
     }
 
-    #[non_exhaustive]
     pub struct Iter;
-    fn write_iter<W, T, F, I>(wr: &mut Writer<W>, mut iter: I, mut end: F)
-    where
-        W: Write,
-        T: Display,
-        I: Iterator<Item = T>,
-        F: FnMut(T, &mut Writer<W>),
-    {
-        let mut last: Option<T> = None;
-        for item in iter {
-            if let Some(last) = last.take() {
-                last.s(wr);
-            }
-            last = Some(item);
-        }
-        if let Some(last) = last.take() {
-            end(last, wr);
-        }
-    }
     impl<T: Display, I: Iterator<Item = T>> Writable<Iter> for I {
-        fn w<W: Write>(self, wr: &mut Writer<W>) {
-            write_iter(wr, self, T::w);
-        }
-
-        fn n<W: Write>(self, wr: &mut Writer<W>) {
-            write_iter(wr, self, T::n);
-        }
-
-        fn s<W: Write>(self, wr: &mut Writer<W>) {
-            write_iter(wr, self, T::s);
-        }
+        impl_writer!(Iter, w, n, s);
     }
 
-    #[non_exhaustive]
     pub struct Slice;
     impl<T: Display> Writable<Slice> for &[T] {
-        fn w<W: Write>(self, wr: &mut Writer<W>) {
-            self.iter().w(wr);
-        }
-
-        fn n<W: Write>(self, wr: &mut Writer<W>) {
-            self.iter().n(wr);
-        }
-
-        fn s<W: Write>(self, wr: &mut Writer<W>) {
-            self.iter().s(wr);
-        }
+        impl_writer!(Slice, w, n, s);
     }
 
     pub struct Writer<W: Write> {
@@ -180,18 +153,8 @@ mod writer {
         pub fn new(w: W) -> Self {
             Self { writer: BufWriter::new(w) }
         }
-        // ' ' sep, no end
-        pub fn w<M, T: Writable<M>>(&mut self, item: T) {
-            item.w(self);
-        }
-        // ' ' sep, end with '\n'
-        pub fn n<M, T: Writable<M>>(&mut self, item: T) {
-            item.n(self);
-        }
-        // ' ' sep, end with ' '
-        pub fn s<M, T: Writable<M>>(&mut self, item: T) {
-            item.s(self);
-        }
+
+        impl_writer!(Writer, w, n, s);
 
         // write "Yes\n" or "No\n"
         pub fn y(&mut self, b: bool) {
@@ -206,6 +169,7 @@ mod writer {
     }
 
     /// write ' ' sep, end with '\n'
+    #[macro_export]
     macro_rules! w {
         ($wr:expr, $item:expr) => ($wr.n($item));
         ($wr:expr, $first:expr, $($item:expr),+) => {
@@ -215,21 +179,34 @@ mod writer {
     }
 }
 
-// const d8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
+#[cfg(debug_assertions)]
+fn main() {
+    use std::fs::File;
+    solve(
+        Reader::new(File::open("input.txt").unwrap()),
+        Writer::new(std::io::stdout()),
+        // Writer::new(File::create("output.txt").unwrap()),
+    )
+}
 
+#[cfg(not(debug_assertions))]
 fn main() {
     let (stdin, stdout) = (std::io::stdin(), std::io::stdout());
     solve(Reader::new(stdin.lock()), Writer::new(stdout.lock()));
 }
 
-fn equ(a: &VecDeque<VecDeque<bool>>, b: &VecDeque<VecDeque<bool>>, w: usize, h: usize) -> bool {
-    a.iter().zip(b).all(|(ra, rb)| ra.iter().zip(rb).all(|(ca, cb)| ca == cb))
+// const D8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
+
+type D = VecDeque<VecDeque<char>>;
+
+fn equ(a: &D, b: &D) -> bool {
+    a.iter().zip(b).all(|(a, b)| a.iter().zip(b).all(|(a, b)| a == b))
 }
 
-fn check(mut a: &mut VecDeque<VecDeque<bool>>, b: &VecDeque<VecDeque<bool>>, w: usize, h: usize) -> bool {
+fn chk(mut a: &mut D, b: &D, w: usize, h: usize) -> bool {
     for _ in 0..h {
         for _ in 0..w {
-            if equ(a, b, w, h) {
+            if equ(a, b) {
                 return true;
             }
             for mut r in a.iter_mut() {
@@ -243,9 +220,7 @@ fn check(mut a: &mut VecDeque<VecDeque<bool>>, b: &VecDeque<VecDeque<bool>>, w: 
 
 fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
     let (h, w) = r!(re, u, u);
-    let mut a: VecDeque<VecDeque<_>> =
-        (0..h).map(|_| re.s().chars().map(|c| c == '.').collect()).collect();
-    let b: VecDeque<VecDeque<_>> =
-        (0..h).map(|_| re.s().chars().map(|c| c == '.').collect()).collect();
-    wr.y(check(&mut a, &b, w, h));
+    let mut a: D = (0..h).map(|_| re.s().chars().collect()).collect();
+    let b: D = (0..h).map(|_| re.s().chars().collect()).collect();
+    wr.y(chk(&mut a, &b, w, h));
 }
