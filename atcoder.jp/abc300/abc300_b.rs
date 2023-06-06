@@ -11,7 +11,7 @@ use writer::Writer;
 mod reader {
     use std::any::type_name;
     use std::io::{BufRead, BufReader, Read};
-    use std::iter::Peekable;
+    use std::iter::{FromIterator, Peekable};
     use std::mem::transmute;
     use std::str::{FromStr, SplitWhitespace};
 
@@ -66,6 +66,9 @@ mod reader {
         impl_reader!((i, i64), (u, usize), (c, char), (s, String), (f, f64));
         pub fn u1(&mut self) -> usize {
             self.u().checked_sub(1).expect("Attempted read 0 as usize1")
+        }
+        pub fn chars<T: FromIterator<char>>(&mut self) -> T {
+            self.s().chars().collect()
         }
     }
 
@@ -220,7 +223,7 @@ fn chk(mut a: &mut D, b: &D, w: usize, h: usize) -> bool {
 
 fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
     let (h, w) = r!(re, u, u);
-    let mut a: D = (0..h).map(|_| re.s().chars().collect()).collect();
-    let b: D = (0..h).map(|_| re.s().chars().collect()).collect();
+    let mut a = rd!(re, [chars; h]);
+    let b = rd!(re, [chars; h]);
     wr.y(chk(&mut a, &b, w, h));
 }
