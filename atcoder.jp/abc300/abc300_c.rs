@@ -214,14 +214,11 @@ fn find(map: &Vec<Vec<char>>, cx: usize, cy: usize) -> Option<usize> {
 
 fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
     let (h, w) = r!(re, u, u);
-    let mut ans = vec![0usize; h.min(w)];
     let map = rv!(re, [chars; h]);
-    for y in 1..h - 1 {
-        for x in 1..w - 1 {
-            if let Some(size) = find(&map, x, y) {
-                ans[size] += 1;
-            }
-        }
-    }
+    let mut ans = vec![0usize; h.min(w)];
+    (1..h - 1)
+        .flat_map(|y| (1..w - 1).map(move |x| (x, y)))
+        .flat_map(|(x, y)| find(&map, x, y))
+        .for_each(|size| ans[size] += 1);
     wr.n(ans.iter());
 }
