@@ -194,22 +194,20 @@ fn main() {
 // const D8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
 const D4: [(i32, i32); 4] = [(-1, -1), (-1, 1), (1, -1), (1, 1)];
 
-fn find(map: &Vec<Vec<char>>, cx: usize, cy: usize) -> Option<usize> {
+fn find(map: &Vec<Vec<char>>, cx: usize, cy: usize, w: usize, h: usize) -> Option<usize> {
     if map[cy][cx] != '#' {
         return None;
     }
-    let mut size = 1;
-    let (ix, iy) = (cx as i32, cy as i32);
-    let h = map.len() as i32;
-    let w = map[0].len() as i32;
-    loop {
-        for (x, y) in D4.iter().map(|(dx, dy)| (ix + dx * size, iy + dy * size)) {
-            if !(0..w).contains(&x) || !(0..h).contains(&y) || map[y as usize][x as usize] != '#' {
-                return if size >= 2 { Some(size as usize - 2) } else { None };
-            }
-        }
-        size += 1;
-    }
+    (1..)
+        .take_while(|s| {
+            D4.iter().map(|(dx, dy)| (cx as i32 + dx * s, cy as i32 + dy * s)).all(|(x, y)| {
+                (0..w as i32).contains(&x)
+                    && (0..h as i32).contains(&y)
+                    && map[y as usize][x as usize] == '#'
+            })
+        })
+        .map(|s| (s - 1) as usize)
+        .last()
 }
 
 fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
@@ -218,7 +216,7 @@ fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
     let mut ans = vec![0usize; h.min(w)];
     (1..h - 1)
         .flat_map(|y| (1..w - 1).map(move |x| (x, y)))
-        .flat_map(|(x, y)| find(&map, x, y))
+        .flat_map(|(x, y)| find(&map, x, y, w, h))
         .for_each(|size| ans[size] += 1);
     wr.n(ans.iter());
 }
