@@ -193,25 +193,19 @@ fn main() {
 
 // const D8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
 const D4: [(i32, i32); 4] = [(-1, -1), (-1, 1), (1, -1), (1, 1)];
-type T = Vec<Vec<char>>;
 
-fn find(map: &T, cx: usize, cy: usize) -> usize {
-    let mut size = 1;
+fn find(map: &Vec<Vec<char>>, cx: usize, cy: usize) -> Option<usize> {
     if map[cy][cx] != '#' {
-        return 0;
+        return None;
     }
+    let mut size = 1;
     let (ix, iy) = (cx as i32, cy as i32);
     let h = map.len() as i32;
     let w = map[0].len() as i32;
     loop {
         for (x, y) in D4.iter().map(|(dx, dy)| (ix + dx * size, iy + dy * size)) {
-            let ans = (size - 1) as usize;
-            if !(0..w).contains(&x) || !(0..h).contains(&y) {
-                return ans;
-            }
-            let (x, y) = (x as usize, y as usize);
-            if map[y][x] != '#' {
-                return ans;
+            if !(0..w).contains(&x) || !(0..h).contains(&y) || map[y as usize][x as usize] != '#' {
+                return if size >= 2 { Some(size as usize - 2) } else { None };
             }
         }
         size += 1;
@@ -224,9 +218,8 @@ fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
     let map = rv!(re, [chars; h]);
     for y in 1..h - 1 {
         for x in 1..w - 1 {
-            let s = find(&map, x, y);
-            if s > 0 {
-                ans[s - 1] += 1;
+            if let Some(size) = find(&map, x, y) {
+                ans[size] += 1;
             }
         }
     }
