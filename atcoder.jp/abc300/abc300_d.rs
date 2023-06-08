@@ -211,25 +211,11 @@ fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
     let n = re.u();
     let max = (1e12 / (2 * 2 * 3) as f64).sqrt() as usize;
     let arr = sieve(max);
-    let good = |a, b, c| a * a * b * c * c <= n;
     let mut ans = 0;
-    let l = arr.len();
-    for i in 0..l {
-        let a = arr[i];
-        if !good(a, a, a) {
-            break;
-        }
-        for j in i + 1..l {
-            let b = arr[j];
-            if !good(a, b, b) {
-                break;
-            }
-            for k in j + 1..l {
-                let c = arr[k];
-                if good(a, b, c) {
-                    ans += 1;
-                }
-            }
+    let good = |a, b, c| a * a * b * c * c <= n;
+    for (i, &a) in arr.iter().enumerate().take_while(|(_, &a)| good(a, a, a)) {
+        for (j, &b) in arr.iter().enumerate().skip(i + 1).take_while(|(_, &b)| good(a, b, b)) {
+            ans += arr.iter().skip(j + 1).take_while(|&&c| good(a, b, c)).count();
         }
     }
     wr.n(ans);
