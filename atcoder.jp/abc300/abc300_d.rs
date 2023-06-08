@@ -1,5 +1,4 @@
 // https://atcoder.jp/contests/abc300/tasks/abc300_d
-// https://atcoder.jp/contests/abc300/tasks/abc300_b
 #![allow(unused_imports, unused_macros, unused_variables, unused_mut, dead_code)]
 
 use std::collections::*;
@@ -210,28 +209,28 @@ fn sieve(n: usize) -> Vec<usize> {
 
 fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
     let n = re.u();
-    // let max = (1e12 / (2 * 2 * 3) as f64).sqrt() as usize;
-    let arr = sieve(3e5 as usize);
-    let mut ans = HashSet::new();
-    let eval = |a: usize, b: usize, c: usize| a * a * b * c * c <= n;
+    let max = (1e12 / (2 * 2 * 3) as f64).sqrt() as usize;
+    let arr = sieve(max);
+    let good = |a, b, c| a * a * b * c * c <= n;
+    let mut ans = 0;
     let l = arr.len();
     for i in 0..l {
         let a = arr[i];
-        if !eval(a, a, a) {
+        if !good(a, a, a) {
             break;
         }
         for j in i + 1..l {
             let b = arr[j];
-            if !eval(a, b, b) {
+            if !good(a, b, b) {
                 break;
             }
             for k in j + 1..l {
                 let c = arr[k];
-                if eval(a, b, c) {
-                    ans.insert(a * a * b * c * c);
+                if good(a, b, c) {
+                    ans += 1;
                 }
             }
         }
     }
-    wr.n(ans.len());
+    wr.n(ans);
 }
