@@ -1,4 +1,4 @@
-// https://atcoder.jp/contests/abc300/tasks/abc300_d
+// 2023-04-30 https://atcoder.jp/contests/abc300/tasks/abc300_d
 #![allow(unused_imports, unused_macros, unused_variables, unused_mut, dead_code)]
 
 use std::collections::*;
@@ -207,13 +207,15 @@ fn sieve(n: usize) -> Vec<usize> {
 fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
     let n = re.u();
     let max = (1e12 / (2 * 2 * 3) as f64).sqrt() as usize;
-    let good = |a, b, c| a * a * b * c * c <= n;
+    let prod = |a, b, c| a * a * b * c * c;
+    let good = |a, b, c| prod(a, b, c) <= n;
     let arr = sieve(max);
     let mut ans = 0;
     for (i, &a) in arr.iter().enumerate().take_while(|(_, &a)| good(a, a, a)) {
         for (j, &b) in arr.iter().enumerate().skip(i + 1).take_while(|(_, &b)| good(a, b, b)) {
-            let (aa, bb, nn) = (a as f64, b as f64, n as f64);
-            ans += match &arr[j + 1..].binary_search(&((nn / (aa * aa * bb)).sqrt() as usize)) {
+            ans += match &arr[j + 1..]
+                .binary_search(&((n as f64 / prod(a, b, 1) as f64).sqrt() as usize))
+            {
                 Ok(idx) => idx + 1,
                 Err(idx) => *idx,
             };
