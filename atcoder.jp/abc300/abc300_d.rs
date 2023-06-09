@@ -194,15 +194,12 @@ fn main() {
 
 fn sieve(n: usize) -> Vec<usize> {
     let mut arr = vec![true; n + 1];
-    arr[0] = false;
-    arr[1] = false;
+    (0..=1).for_each(|i| arr[i] = false);
     for i in (2..).take_while(|i| i * i <= n) {
         if !arr[i] {
             continue;
         }
-        for j in (0..).map(|j| i * (i + j)).take_while(|&j| j <= n) {
-            arr[j] = false;
-        }
+        (0..).map(|j| i * (i + j)).take_while(|&j| j <= n).for_each(|j| arr[j] = false);
     }
     arr.iter().enumerate().filter(|(_, &b)| b).map(|(i, _)| i).collect()
 }
@@ -210,12 +207,16 @@ fn sieve(n: usize) -> Vec<usize> {
 fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
     let n = re.u();
     let max = (1e12 / (2 * 2 * 3) as f64).sqrt() as usize;
+    let good = |a, b, c| a * a * b * c * c <= n;
     let arr = sieve(max);
     let mut ans = 0;
-    let good = |a, b, c| a * a * b * c * c <= n;
     for (i, &a) in arr.iter().enumerate().take_while(|(_, &a)| good(a, a, a)) {
         for (j, &b) in arr.iter().enumerate().skip(i + 1).take_while(|(_, &b)| good(a, b, b)) {
-            ans += arr.iter().skip(j + 1).take_while(|&&c| good(a, b, c)).count();
+            let (aa, bb, nn) = (a as f64, b as f64, n as f64);
+            ans += match &arr[j + 1..].binary_search(&((nn / (aa * aa * bb)).sqrt() as usize)) {
+                Ok(idx) => idx + 1,
+                Err(idx) => *idx,
+            };
         }
     }
     wr.n(ans);
