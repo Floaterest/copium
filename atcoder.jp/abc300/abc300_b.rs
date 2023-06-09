@@ -74,12 +74,14 @@ mod reader {
 
     #[macro_export]
     macro_rules! r {
+        ($re:expr, ($func:ident, $type:ty)) => ($re.$func::<$type>());
         ($re:expr, $func:ident) => ($re.$func());
-        ($re:expr, [$func:ident; $len:expr]) => (std::iter::repeat_with(|| $re.$func()).take($len));
+        ($re:expr, [$token:tt; $len:expr]) => (std::iter::repeat_with(|| r!($re, $token)).take($len));
         ($re:expr, $($item:tt),+) => (($(r!($re, $item)),+));
     }
     macro_rules! impl_collection {
         ($(($macro:ident, $type:ty)),+) => ($(#[macro_export] macro_rules! $macro {
+            ($re:expr, [chars; $len:expr]) => (r!($re, [(chars, $type); $len]).collect::<$type>());
             ($re:expr, [$func:ident; $len:expr]) => (r!($re, [$func; $len]).collect::<$type>());
             ($re:expr, [$item:tt; $len:expr]) => (std::iter::repeat_with(|| $macro!($re, $item)).take($len).collect::<$type>());
         })+)
@@ -121,11 +123,6 @@ mod writer {
                 }
             })+
         };
-        (Slice, $($func:ident),+) => {
-            $(fn $func<W: Write>(self, wr: &mut Writer<W>) {
-                self.iter().$func(wr);
-            })+
-        };
         (Writer, $($func:ident),+) => {
             $(pub fn $func<M, T: Writable<M>>(&mut self, item: T) {
                 item.$func(self);
@@ -141,11 +138,6 @@ mod writer {
     pub struct Iter;
     impl<T: Display, I: Iterator<Item = T>> Writable<Iter> for I {
         impl_writer!(Iter, w, n, s);
-    }
-
-    pub struct Slice;
-    impl<T: Display> Writable<Slice> for &[T] {
-        impl_writer!(Slice, w, n, s);
     }
 
     pub struct Writer<W: Write> {
@@ -200,30 +192,18 @@ fn main() {
 
 // const D8: [(i32, i32); 8] = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)];
 
-type D = VecDeque<VecDeque<char>>;
-
-fn equ(a: &D, b: &D) -> bool {
-    a.iter().zip(b).all(|(a, b)| a.iter().zip(b).all(|(a, b)| a == b))
-}
-
-fn chk(mut a: &mut D, b: &D, w: usize, h: usize) -> bool {
-    for _ in 0..h {
-        for _ in 0..w {
-            if equ(a, b) {
-                return true;
-            }
-            for mut r in a.iter_mut() {
-                r.rotate_left(1);
-            }
-        }
-        a.rotate_left(1);
-    }
-    false
-}
-
 fn solve<R: Read, W: Write>(mut re: Reader<R>, mut wr: Writer<W>) {
     let (h, w) = r!(re, u, u);
-    let mut a = rd!(re, [chars; h]);
-    let b = rd!(re, [chars; h]);
-    wr.y(chk(&mut a, &b, w, h));
+    let a = rv!(re, [chars; h]);
+    let b = rv!(re, [chars; h]);
+    wr.y((0..h)
+        .map(|i| a.iter().cycle().skip(i).take(h).cloned())
+        .flat_map(|a| {
+            (0..w).map(move |i| {
+                a.clone()
+                    .map(move |row| row.iter().cycle().skip(i).take(w).cloned().collect())
+                    .collect()
+            })
+        })
+        .any(|a: Vec<Vec<_>>| a == b))
 }
