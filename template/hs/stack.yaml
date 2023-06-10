@@ -1,0 +1,5 @@
+# https://docs.haskellstack.org/en/stable/yaml_configuration/
+resolver: ghc-9.4.5
+packages:
+- .
+system-ghc: true
