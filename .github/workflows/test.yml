@@ -1,10 +1,10 @@
-name: Test
+name: Test Rust Template
 
 on:
   workflow_dispatch:
   push:
     paths:
-      - src/*.rs
+      - template/rs/src/*.rs
       - .github/workflows/test.yml
 
 env:
@@ -13,6 +13,9 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: template/rs
     steps:
       - uses: actions/checkout@v3
       - name: Setup toolchain
