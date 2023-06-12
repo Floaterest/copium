@@ -1,7 +1,4 @@
-{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
-{-# OPTIONS_GHC -Wno-unqualified-imports #-}
-{-# OPTIONS_GHC -Wno-unused-imports #-}
-{-# OPTIONS_GHC -Wno-unused-top-binds #-}
+{-# OPTIONS_GHC -Wno-incomplete-patterns -Wno-unqualified-imports -Wno-unused-imports -Wno-unused-top-binds #-}
 
 import Control.Arrow hiding (arr)
 import Data.List
