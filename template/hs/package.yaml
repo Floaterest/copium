@@ -2,6 +2,7 @@ name: copium
 
 dependencies:
 - base >= 4.7 && < 5
+- array
 
 ghc-options:
 - -Wall
