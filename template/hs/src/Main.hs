@@ -1,5 +1,7 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns -Wno-unrecognised-pragmas -Wno-unused-imports -Wno-unused-top-binds #-}
 
+{-# HLINT ignore "Use infix" #-}
+
 import Control.Arrow hiding (arr)
 import Data.List
 import Debug.Trace
