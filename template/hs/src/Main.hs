@@ -5,6 +5,7 @@
 import Control.Applicative
 import Control.Arrow
 import Control.Monad
+import Data.Array
 import Data.Char
 import Data.Foldable
 import Data.List
