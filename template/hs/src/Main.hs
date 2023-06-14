@@ -5,7 +5,10 @@
 import Control.Applicative
 import Control.Arrow
 import Control.Monad
+import Data.Char
+import Data.Foldable
 import Data.List
+import Data.Maybe
 import Debug.Trace
 
 type I = Integer
