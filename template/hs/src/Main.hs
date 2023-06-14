@@ -2,7 +2,9 @@
 
 {-# HLINT ignore "Use infix" #-}
 
-import Control.Arrow hiding (arr)
+import Control.Applicative
+import Control.Arrow
+import Control.Monad
 import Data.List
 import Debug.Trace
 
