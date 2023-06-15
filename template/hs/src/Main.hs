@@ -10,6 +10,7 @@ import Data.Char
 import Data.Foldable
 import Data.List
 import Data.Maybe
+import Data.Tuple (swap)
 import Debug.Trace
 
 type I = Integer
