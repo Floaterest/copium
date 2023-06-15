@@ -11,7 +11,7 @@ import Data.Foldable
 import Data.List
 import Data.Maybe
 import Data.Tuple (swap)
-import Debug.Trace
+import Debug.Trace (trace)
 
 type I = Integer
 type S = String
