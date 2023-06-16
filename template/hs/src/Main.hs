@@ -14,9 +14,9 @@ import Data.Tuple (swap)
 import Debug.Trace (trace)
 
 type B = Bool
+type C = Char
 type I = Integer
 type S = String
-type C = Char
 
 main :: IO ()
 main = interact $ unwords . solve . words
