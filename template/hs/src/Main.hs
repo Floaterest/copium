@@ -13,6 +13,7 @@ import Data.Maybe
 import Data.Tuple (swap)
 import Debug.Trace (trace)
 
+type B = Bool
 type I = Integer
 type S = String
 type C = Char
