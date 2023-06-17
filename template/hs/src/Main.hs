@@ -18,6 +18,11 @@ type C = Char
 type I = Integer
 type S = String
 
+-- | answer Yes or No
+yes :: B -> S
+yes True = "Yes\n"
+yes False = "No\n"
+
 main :: IO ()
 main = interact $ unwords . solve . words
   where
