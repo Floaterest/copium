@@ -28,6 +28,11 @@ ints :: S -> [I]
 ints = fmap read . words
 {-# INLINE ints #-}
 
+-- | pairwise zipWith
+pairWith :: (a -> a -> b) -> [a] -> [b]
+pairWith = (<*> tail) . zipWith
+{-# INLINE pairWith #-}
+
 main :: IO ()
 main = interact $ unwords . solve . words
   where
