@@ -23,6 +23,11 @@ yes :: B -> S
 yes True = "Yes\n"
 yes False = "No\n"
 
+-- | read @[Integer]@
+ints :: S -> [I]
+ints = fmap read . words
+{-# INLINE ints #-}
+
 main :: IO ()
 main = interact $ unwords . solve . words
   where
