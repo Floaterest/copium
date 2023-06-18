@@ -33,6 +33,10 @@ pairWith :: (a -> a -> b) -> [a] -> [b]
 pairWith = (<*> tail) . zipWith
 {-# INLINE pairWith #-}
 
+divides :: Integral a => a -> a -> B
+divides = ((0 ==) .) . flip rem
+{-# INLINE divides #-}
+
 main :: IO ()
 main = interact $ unwords . solve . words
   where
