@@ -37,6 +37,11 @@ divides :: Integral a => a -> a -> B
 divides = ((0 ==) .) . flip rem
 {-# INLINE divides #-}
 
+-- | count number of elements that satisfies a condition
+countWith :: (a -> B) -> [a] -> Int
+countWith = (length .) . filter
+{-# INLINE countWith #-}
+
 main :: IO ()
 main = interact $ unwords . solve . words
   where
