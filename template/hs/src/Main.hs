@@ -42,6 +42,10 @@ countWith :: (a -> B) -> [a] -> Int
 countWith = (length .) . filter
 {-# INLINE countWith #-}
 
+-- | show tuple
+show2 :: (Show a, Show b) => (a, b) -> S
+show2 (a, b) = show a ++ " " ++ show b
+
 main :: IO ()
 main = interact $ unwords . solve . words
   where
