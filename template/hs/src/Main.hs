@@ -47,7 +47,8 @@ show2 :: (Show a, Show b) => (a, b) -> S
 show2 (a, b) = show a ++ " " ++ show b
 
 main :: IO ()
-main = interact $ unwords . solve . words
+main = interact $ tostr . solve . parse
   where
-    solve :: [S] -> [S]
+    parse = words -- or ints
     solve = id
+    tostr = show -- or show2
