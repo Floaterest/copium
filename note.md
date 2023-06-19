@@ -76,7 +76,7 @@ fn dijkstra(graph: &Vec<Vec<(usize, usize)>>, start: usize, end: usize) -> Optio
 > use [`binary_search`](https://doc.rust-lang.org/std/primitive.slice.html#method.binary_search) (if `x` is not found, it returns index of smallest item in slice that is bigger than `x`)
 
 given
-- $(a_i)_{i=1}^N$ as **incresing** sequence of $\mathbb Z$
+- $(a_i)_{i=1}^N$ as **increasing** sequence of $\mathbb Z$
 - $L,U\in\mathbb Z$ st $1\le L\le U\le N$
 
 find $r-l$ where $\forall l\le j\lt r\quad L\le a_j\le U$
