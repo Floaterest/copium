@@ -9,10 +9,9 @@
 
 for $p\in\mathbb N$ and $q\in\mathbb Z^+$
 
-```
-⌈p/q⌉ = (p + q - 1) / q
-```
-
+$$
+\lceil p/q\rceil=\lfloor(p + q - 1)/q\rfloor
+$$
 
 ## Binary Search
 > when you are not allowed to use Rust
