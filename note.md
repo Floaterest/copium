@@ -14,7 +14,8 @@ $$
 $$
 
 ## Binary Search
-> when you are not allowed to use Rust
+> use [`binary_search`](https://doc.rust-lang.org/std/primitive.slice.html#method.binary_search) instead
+
 ```rs
 fn binary_search<T: Ord>(slice: &[T], target: T) -> Result<usize, usize> {
     // slice.binary_search(&target)
@@ -34,14 +35,14 @@ fn binary_search<T: Ord>(slice: &[T], target: T) -> Result<usize, usize> {
 ```
 
 
-## Lower/Upper Bound
+## Lower and Upper Bound
 > use [`binary_search`](https://doc.rust-lang.org/std/primitive.slice.html#method.binary_search) (if `x` is not found, it returns index of smallest item in slice that is bigger than `x`)
 
-given
-- $(a_i)_{i=1}^N$ as **increasing** sequence of $\mathbb Z$
+input
+- $(a_i)_{i=1}^N$ as a **increasing** sequence of $\mathbb Z$
 - $L,U\in\mathbb Z$ st $1\le L\le U\le N$
 
-find $r-l$ where $\forall l\le j\lt r\quad L\le a_j\le U$
+find $r-l$ where $\forall j\in[l,r)\quad L\le a_j\le U$
 - i.e. size of subsequence bounded by $L$ and $U$
 
 
@@ -57,8 +58,7 @@ fn bounded(a: &[i32], lower: i32, upper: i32) -> usize {
 }
 ```
 
-examples
-  - [`abc192_e.rs`](./atcoder.jp/abc192/abc192_e.rs#L181)
+see [`abc192_e.rs`](./atcoder.jp/abc192/abc192_e.rs#L181)
 
 
 ## Number Theory
