@@ -5,14 +5,6 @@
 
 # Algorithm
 
-## Ceil Integer Division
-
-for $p\in\mathbb N$ and $q\in\mathbb Z^+$
-
-$$
-\lceil p/q\rceil=\lfloor(p + q - 1)/q\rfloor
-$$
-
 ## Binary Search
 > use [`binary_search`](https://doc.rust-lang.org/std/primitive.slice.html#method.binary_search) instead
 
@@ -61,7 +53,15 @@ fn bounded(a: &[i32], lower: i32, upper: i32) -> usize {
 see [`abc192_e.rs`](./atcoder.jp/abc192/abc192_e.rs#L181)
 
 
-## Number Theory
+# Number Theory
+
+## Ceil Integer Division
+
+for $p\in\mathbb N$ and $q\in\mathbb Z^+$
+
+$$
+\lceil p/q\rceil=\lfloor(p + q - 1)/q\rfloor
+$$
 
 ## Graph Theory
 
