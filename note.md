@@ -63,9 +63,9 @@ $$
 \lceil p/q\rceil=\lfloor(p + q - 1)/q\rfloor
 $$
 
-## Graph Theory
+# Graph Theory
 
-### Dijkstra
+## Dijkstra
 > use [`BinaryHeap`](https://doc.rust-lang.org/std/collections/binary_heap/index.html#examples)
 
 given
