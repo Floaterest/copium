@@ -68,12 +68,6 @@ $$
 ## Dijkstra
 > use [`BinaryHeap`](https://doc.rust-lang.org/std/collections/binary_heap/index.html#examples)
 
-given
-
-- digraph $G=(V,E)$ where $V=\lbrace i\in\mathbb N:i\lt n\rbrace$ for some $n$ as the size of the graph
-- function $w:V\times V\to\mathbb N$ where $w(u,v)$ is the weight from $u$ to $v$
-
-let `graph` be a weighted adjacency list of $G$, `graph[u]` is `Vec<(v, w)>` where $\texttt{w}=w(u,v)$
 
 ```rs
 fn dijkstra(graph: &Vec<Vec<(usize, usize)>>, start: usize, end: usize) -> Option<usize> {
