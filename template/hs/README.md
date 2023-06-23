@@ -6,7 +6,7 @@
 
 any function in the form
 ```hs
-pointful op f g x = (f x) `op` (g x)
+pointful op f g x = f x `op` g x
 ```
 
 is functionally equivalent to `liftM2`
