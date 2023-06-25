@@ -1,6 +1,8 @@
-# Combinators
+# Monads
 
-> reference to [**SKI** calculus](https://en.wikipedia.org/wiki/SKI_combinator_calculus) and [**BCKW** system](https://en.wikipedia.org/wiki/B%2C_C%2C_K%2C_W_system)
+## Combinators
+
+> see [**SKI** calculus](https://en.wikipedia.org/wiki/SKI_combinator_calculus) and [**BCKW** system](https://en.wikipedia.org/wiki/B%2C_C%2C_K%2C_W_system)
 
 | Combinator | Pointfree Haskell Equivalent |
 | - | - |
@@ -11,12 +13,14 @@
 | **C** x y z = x z y | `flip` |
 | **W** x y = x y y | `join` |
 
-**S** and **W** uses the fact that `(e ->)` is a is a [Reader Monad](http://hackage.haskell.org/packages/archive/mtl/latest/doc/html/Control-Monad-Reader.html), the rest are straight forward
+**S** and **W** uses the fact that `(e ->)` is a [Reader Monad](http://hackage.haskell.org/packages/archive/mtl/latest/doc/html/Control-Monad-Reader.html)
 
+```hs
+ap :: (e -> a -> b) -> (e -> a) -> e -> b -- S
+join :: (e -> e -> a) -> e -> a           -- W
+```
 
 ## Partially Applied Function
-
-> `(e ->)` is a [Reader Monad](http://hackage.haskell.org/packages/archive/mtl/latest/doc/html/Control-Monad-Reader.html)
 
 any function in the form
 
@@ -24,4 +28,4 @@ any function in the form
 pointful op f g x = f x `op` g x
 ```
 
-is functionally equivalent to `liftM2`
+is  equivalent to `liftM2`
