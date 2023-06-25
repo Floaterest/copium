@@ -2,24 +2,3 @@ repository:
   allow_squash_merge: false
   allow_rebase_merge: false
   delete_branch_on_merge: true
-
-labels:
-  - name: good first issue
-    color: '#a68cd9'
-    description: Good for newcomers
-
-  - name: add
-    color: '#39c5bb'
-    description: I finally found motivation to practice
-
-  - name: refactor
-    color: '#ffe666'
-    description: No new problems but new code
-
-  - name: chore
-    color: '#d7d7d7'
-    description: Update some scripts
-
-  - name: template
-    color: '#ff9966'
-    description: Update template
