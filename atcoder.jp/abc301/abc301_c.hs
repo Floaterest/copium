@@ -26,23 +26,22 @@ yes True = "Yes\n"
 yes False = "No\n"
 
 solve :: [S] -> B
-solve st = cond1 && cond2 && cond3
+solve st = cond1 a1 a2 && cond2 && cond3
   where
-    [c1, c2] = count <$> st
+    [a1, a2] = count <$> st
     -- same count for chars other that atcoder
-    cond1 = and $ hgf ['a' .. 'z']
-    f = filter (`notElem` atc)
-    g = (c1 !) &&& (c2 !)
-    gf = fmap g . f
-    h = uncurry (==)
-    hgf = fmap h . gf
+    g = (a1 !) &&& (a2 !)
+    cond1 c1 c2 = and $ fmap (uncurry (==) . countc c1 c2) ['a' .. 'z']
     -- has enough @s to fill
     p = max 0 . uncurry (-) . g
     r = sum . fmap p
-    s = (c2 !) &&& (c1 !)
+    s = (a2 !) &&& (a1 !)
     t = sum . fmap (max 0 . uncurry (-) . s)
-    cond2 = c2 ! at >= r atc
-    cond3 = c1 ! at >= t atc
+    cond2 = a2 ! at >= r atc
+    cond3 = a1 ! at >= t atc
+
+countc :: A -> A -> C -> (I, I)
+countc c1 c2 = (c1 !) &&& (c2 !)
 
 atc :: S
 atc = "atcoder"
