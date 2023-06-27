@@ -26,25 +26,19 @@ yes True = "Yes\n"
 yes False = "No\n"
 
 solve :: [S] -> B
-solve st = cond1 a1 a2 && cond2 && cond3
+solve st = cond1 a1 a2 && diff a1 a2 && diff a2 a1
   where
     [a1, a2] = count <$> st
     -- same count for chars other that atcoder
-    g = (a1 !) &&& (a2 !)
-    cond1 c1 c2 = and $ fmap (uncurry (==) . countc c1 c2) ['a' .. 'z']
+    cond1 c1 c2 = and (uncurry (==) . countc c1 c2 <$> filter (`notElem` a) ['a' .. 'z'])
     -- has enough @s to fill
-    p = max 0 . uncurry (-) . g
-    r = sum . fmap p
-    s = (a2 !) &&& (a1 !)
-    t = sum . fmap (max 0 . uncurry (-) . s)
-    cond2 = a2 ! at >= r atc
-    cond3 = a1 ! at >= t atc
+    diff c1 c2 = (<= c2 ! at) $ sum $ fmap (max 0 . uncurry (-) . countc c1 c2) a
+
+a :: S
+a = "atcoder"
 
 countc :: A -> A -> C -> (I, I)
 countc c1 c2 = (c1 !) &&& (c2 !)
-
-atc :: S
-atc = "atcoder"
 
 at :: Char
 at = pred 'a'
