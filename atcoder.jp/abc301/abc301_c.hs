@@ -26,13 +26,13 @@ main = interact $ yes . please . fmap count . words
     please [c1, c2] = solve (c1, c2)
 
 solve, same, diff :: (A, A) -> B
-solve = and . ap [same, diff, diff . swap] . pure
--- check same occurences of chars except atcoder
+solve = and . sequence [same, diff, diff . swap]
+-- same occurences of chars except atcoder
 same (c1, c2) = and (uncurry (==) . countc c1 c2 <$> filter (`notElem` a) ['a' .. 'z'])
 -- check has enough @s to fill atcoder
 diff (c1, c2) = (<= c2 ! at) $ sum $ fmap (max 0 . uncurry (-) . countc c1 c2) a
 
-at :: Char
+at :: C
 at = pred 'a'
 
 a :: S
