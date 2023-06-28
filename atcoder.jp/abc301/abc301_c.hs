@@ -8,8 +8,10 @@
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
 import Control.Arrow hiding (arr)
+import Control.Monad
 import Data.List
-import Debug.Trace
+import Data.Tuple (swap)
+import Debug.Trace (trace)
 import GHC.Arr
 
 type A = Array C I
@@ -19,20 +21,19 @@ type I = Integer
 type S = String
 
 main :: IO ()
-main = interact $ yes . solve . words
-
-yes :: B -> S
-yes True = "Yes\n"
-yes False = "No\n"
-
-solve :: [S] -> B
-solve st = cond1 a1 a2 && diff a1 a2 && diff a2 a1
+main = interact $ yes . please . fmap count . words
   where
-    [a1, a2] = count <$> st
-    -- same count for chars other that atcoder
-    cond1 c1 c2 = and (uncurry (==) . countc c1 c2 <$> filter (`notElem` a) ['a' .. 'z'])
-    -- has enough @s to fill
-    diff c1 c2 = (<= c2 ! at) $ sum $ fmap (max 0 . uncurry (-) . countc c1 c2) a
+    please [c1, c2] = solve (c1, c2)
+
+solve, same, diff :: (A, A) -> B
+solve = and . ap [same, diff, diff . swap] . pure
+-- check same occurences of chars except atcoder
+same (c1, c2) = and (uncurry (==) . countc c1 c2 <$> filter (`notElem` a) ['a' .. 'z'])
+-- check has enough @s to fill atcoder
+diff (c1, c2) = (<= c2 ! at) $ sum $ fmap (max 0 . uncurry (-) . countc c1 c2) a
+
+at :: Char
+at = pred 'a'
 
 a :: S
 a = "atcoder"
@@ -40,8 +41,9 @@ a = "atcoder"
 countc :: A -> A -> C -> (I, I)
 countc c1 c2 = (c1 !) &&& (c2 !)
 
-at :: Char
-at = pred 'a'
+yes :: B -> S
+yes True = "Yes\n"
+yes False = "No\n"
 
 count :: S -> A
 count = accumArray (+) 0 (at, 'z') . fmap f
