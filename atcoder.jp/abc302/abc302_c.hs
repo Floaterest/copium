@@ -29,14 +29,17 @@ yes True = "Yes\n"
 yes False = "No\n"
 
 main :: IO ()
-main = interact $ yes . please . words
+main = interact $ yes . solve . words
   where
-    please (_ : _ : xs) = solve xs
+    solve (_ : _ : xs) = c' xs
 
-solve cs = or ds
+c' :: [S] -> Bool
+c' = (and . zipPair cond <$>) . permutations >>> or
   where
-    ps :: [[S]]
-    ps = permutations cs
-    cond s t = (1 ==) $ length $ filter not $ zipWith (==) s t
-    bs = [zipWith cond p (tail p) | p <- ps]
-    ds = and <$> bs
+    -- cond a b = (1 ==) $ length $ filter not $ zipWith (==) a b
+    -- eta reduction goes brr
+    cond = (((1 ==) . length . filter not) .) . zipWith (==)
+
+-- | zipWith pairwise
+zipPair :: (a -> a -> b) -> [a] -> [b]
+zipPair f = zipWith f &&& tail >>> app
