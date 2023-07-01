@@ -31,11 +31,13 @@ yes False = "No\n"
 main :: IO ()
 main = interact $ yes . solve . words
   where
-    solve [_, a, b] = aa a b
+    solve = aa . tail
 
-aa :: S -> S -> Bool
-aa a b = (repl <$> a) == (repl <$> b)
+aa :: [S] -> Bool
+aa xs = all (== h) t
   where
+    h = repl <$> head xs
+    t = fmap (repl <$>) (tail xs)
     repl '0' = 'o'
     repl '1' = 'l'
     repl c = c
