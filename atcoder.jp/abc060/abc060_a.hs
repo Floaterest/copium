@@ -36,7 +36,10 @@ main = interact $ fmap toUpper . yes . solve . words
     solve = compute
 
 compute :: [S] -> B
-compute ss = and f
+compute = sc (zipWith eq) tail >>> and
   where
-    f = zipWith g ss (tail ss)
-    g a b = last a == head b
+    eq = (. head) . (==) . last
+
+-- | S combinator: S x y z = x z (y z)
+sc :: (a -> b -> c) -> (a -> b) -> a -> c
+sc = ((app .) .) . (&&&)
