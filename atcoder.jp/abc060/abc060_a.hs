@@ -36,4 +36,7 @@ main = interact $ fmap toUpper . yes . solve . words
     solve = compute
 
 compute :: [S] -> B
-compute [a, b, c] = last a == head b && last b == head c
+compute ss = and f
+  where
+    f = zipWith g ss (tail ss)
+    g a b = last a == head b
