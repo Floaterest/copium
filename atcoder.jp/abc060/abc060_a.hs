@@ -9,6 +9,7 @@
 {-# OPTIONS_GHC -Wno-unrecognised-warning-flags #-}
 {-# OPTIONS_GHC -Wno-unused-imports #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
+{-# HLINT ignore "Redundant bracket" #-}
 
 import Control.Applicative
 import Control.Arrow
@@ -36,10 +37,12 @@ main = interact $ fmap toUpper . yes . solve . words
     solve = compute
 
 compute :: [S] -> B
-compute = sc (zipWith eq) tail >>> and
-  where
-    eq = (. head) . (==) . last
+compute = pairWith ((. head) . (==) . last) >>> and
 
 -- | S combinator: S x y z = x z (y z)
 sc :: (a -> b -> c) -> (a -> b) -> a -> c
 sc = ((app .) .) . (&&&)
+
+-- | e.g. pairWith f [a, b, c] = [(f a b), (f b c)]
+pairWith :: (a -> a -> b) -> [a] -> [b]
+pairWith = (`sc` tail) . zipWith
