@@ -34,10 +34,10 @@ main = interact $ yes . solve . words
     solve = aa . tail
 
 aa :: [S] -> Bool
-aa xs = all (== h) t
+aa = ((==) . he) &&& ta >>> uncurry all
   where
-    h = repl <$> head xs
-    t = fmap (repl <$>) (tail xs)
+    he = fmap repl . head
+    ta = fmap (repl <$>) . tail
     repl '0' = 'o'
     repl '1' = 'l'
     repl c = c
