@@ -1,5 +1,4 @@
 -- https://atcoder.jp/contests/abc060/tasks/abc060_b
--- https://atcoder.jp/contests/abc303/tasks/abc303_a
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 {-# HLINT ignore "Use infix" #-}
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
