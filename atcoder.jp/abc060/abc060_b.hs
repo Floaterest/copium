@@ -1,15 +1,7 @@
 -- https://atcoder.jp/contests/abc060/tasks/abc060_b
-{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
-{-# HLINT ignore "Use infix" #-}
-{-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
-{-# OPTIONS_GHC -Wno-type-defaults #-}
-{-# OPTIONS_GHC -Wno-unqualified-imports #-}
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-{-# OPTIONS_GHC -Wno-unrecognised-warning-flags #-}
-{-# OPTIONS_GHC -Wno-unused-imports #-}
-{-# OPTIONS_GHC -Wno-unused-top-binds #-}
+{-# OPTIONS_GHC -Wno-incomplete-patterns -Wno-unrecognised-pragmas -Wno-unused-imports -Wno-unused-top-binds #-}
 
-{-# HLINT ignore "Redundant bracket" #-}
+{-# HLINT ignore "Use infix" #-}
 
 import Control.Applicative
 import Control.Arrow
@@ -40,14 +32,22 @@ sc = ((app .) .) . (&&&)
 pairWith :: (a -> a -> b) -> [a] -> [b]
 pairWith = (`sc` tail) . zipWith
 
+up :: S -> S
+up = fmap toUpper
+
+ints :: S -> [I]
+ints = fmap read . words
+
 main :: IO ()
-main = interact $ fmap toUpper . yes . solve . words
+main = interact $ up . yes . solve . ints
   where
-    solve = bb . fmap read
+    solve [a, b, c] = bb (c, (a, b))
 
+-- find n such that
 -- na === c mod b
--- na = mb + c
--- na + mb = c
+-- i.e. na = mb + c
+-- i.e. na + mb = c
+-- thus https://en.wikipedia.org/wiki/Diophantine_equation
 
-bb :: [I] -> B
-bb [a, b, c] = (rem c (gcd a b)) == 0
+bb :: (I, (I, I)) -> B
+bb = (== 0) . app . (rem *** uncurry gcd)
