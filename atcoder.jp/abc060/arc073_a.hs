@@ -39,12 +39,9 @@ pairWith = (`sc` tail) . zipWith
 main :: IO ()
 main = interact $ show . solve . ints
   where
-    solve (_ : t : ns) = cc t (reverse ns)
+    solve (_ : t : ns) = cc t ns
 
-cc :: I -> [I] -> I
-cc t ns = snd $ foldr f (0, 0) ns
+cc t ns = t + sum p
   where
-    -- f cur tu | trace ("f " ++ show (cur, tu)) False = undefined
-    f cur (end, total)
-        | cur < end = (cur + t, total + t - (end - cur))
-        | otherwise = (cur + t, total + t)
+    f = subtract
+    p = min t <$> pairWith f ns
