@@ -29,19 +29,18 @@ ints :: S -> [I]
 ints = fmap read . words
 
 -- | S combinator: @S x y z = x z (y z)@
-sc :: (a -> b -> c) -> (a -> b) -> a -> c
-sc = ((app .) .) . (&&&)
+-- su for substitution
+su :: (a -> b -> c) -> (a -> b) -> a -> c
+su = ((app .) .) . (&&&)
 
 -- | e.g. @pairWith f [a, b, c] = [(f a b), (f b c)]@
 pairWith :: (a -> a -> b) -> [a] -> [b]
-pairWith = (`sc` tail) . zipWith
+pairWith = (`su` tail) . zipWith
 
 main :: IO ()
-main = interact $ show . solve . ints
+main = interact $ show . solve . fmap read . words
   where
     solve (_ : t : ns) = cc t ns
 
-cc t ns = t + sum p
-  where
-    f = subtract
-    p = min t <$> pairWith f ns
+cc :: I -> [I] -> I
+cc t ns = (+ t) . sum . (min t <$>) $ pairWith subtract ns
