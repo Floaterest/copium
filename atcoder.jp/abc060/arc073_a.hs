@@ -28,22 +28,19 @@ yes False = "No\n"
 ints :: S -> [I]
 ints = fmap read . words
 
--- | S combinator: @S x y z = x z (y z)@
--- https://en.wikipedia.org/wiki/SKI_combinator_calculus
-ss :: (a -> b -> c) -> (a -> b) -> a -> c
-ss = ((app .) .) . (&&&)
-
 -- | pairwise zipWith
 pw :: (a -> a -> b) -> [a] -> [b]
-pw = (`ss` tail) . zipWith
+-- <*> is the S combinator :: (a -> b -> c) -> (a -> b) -> (a -> c)
+-- https://en.wikipedia.org/wiki/SKI_combinator_calculus
+pw = (<*> tail) . zipWith
 
 main :: IO ()
-main = interact $ show . solve . fmap read . words
+main = interact $ show . solve . ints
   where
     solve (_ : t : ns) = cc t ns
 
 cc :: I -> [I] -> I
-cc = uncurry (.) . f . g
+cc = (.) <$> sm <*> sb
   where
-    f = (. sum) *** (. pw subtract)
-    g = (+) &&& (fmap . min)
+    sm = (. sum) . (+)
+    sb = (. pw subtract) . fmap . min
