@@ -29,13 +29,13 @@ ints :: S -> [I]
 ints = fmap read . words
 
 -- | S combinator: @S x y z = x z (y z)@
--- su for substitution
-su :: (a -> b -> c) -> (a -> b) -> a -> c
-su = ((app .) .) . (&&&)
+-- https://en.wikipedia.org/wiki/SKI_combinator_calculus
+ss :: (a -> b -> c) -> (a -> b) -> a -> c
+ss = ((app .) .) . (&&&)
 
--- | e.g. @pairWith f [a, b, c] = [(f a b), (f b c)]@
-pairWith :: (a -> a -> b) -> [a] -> [b]
-pairWith = (`su` tail) . zipWith
+-- | pairwise zipWith
+pw :: (a -> a -> b) -> [a] -> [b]
+pw = (`ss` tail) . zipWith
 
 main :: IO ()
 main = interact $ show . solve . fmap read . words
@@ -43,4 +43,7 @@ main = interact $ show . solve . fmap read . words
     solve (_ : t : ns) = cc t ns
 
 cc :: I -> [I] -> I
-cc t ns = (+ t) . sum . (min t <$>) $ pairWith subtract ns
+cc = uncurry (.) . f . g
+  where
+    f = (. sum) *** (. pw subtract)
+    g = (+) &&& (fmap . min)
