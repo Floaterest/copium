@@ -37,4 +37,7 @@ main = interact $ fmap toUpper . yes . solve . ints
   where
     solve = aa
 
-aa [a,b,c] = rem (b * 10 + c) 4 == 0
+aa :: [I] -> B
+aa ns = (== 0) . (`rem` 4) . snd $ foldr f (1, 0) $ drop 1 ns
+  where
+    f cur (p, acc) = (p * 10, acc + cur * p)
