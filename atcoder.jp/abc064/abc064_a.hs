@@ -38,6 +38,6 @@ main = interact $ fmap toUpper . yes . solve . ints
     solve = aa
 
 aa :: [I] -> B
-aa ns = (== 0) . (`rem` 4) . snd $ foldr f (1, 0) $ drop 1 ns
+aa = (== 0) . (`rem` 4) . foldl1 f . drop 1
   where
-    f cur (p, acc) = (p * 10, acc + cur * p)
+    f a b = 10 * a + b
