@@ -40,4 +40,4 @@ main = interact $ fmap toUpper . yes . solve . ints
 aa :: [I] -> B
 aa = (== 0) . (`rem` 4) . foldl1 f . drop 1
   where
-    f a b = 10 * a + b
+    f = (+) . (10 *)
