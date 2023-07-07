@@ -27,10 +27,17 @@ yes False = "No\n"
 -- | read @[Integer]@
 ints :: S -> [I]
 ints = fmap read . words
+{-# INLINE ints #-}
 
 -- | pairwise zipWith
-pairWith :: (a -> a -> b) -> [a] -> [b]
-pairWith = (<*> tail) . zipWith
+pw :: (a -> a -> b) -> [a] -> [b]
+pw = (<*> tail) . zipWith
+{-# INLINE pw #-}
+
+-- | divides
+di :: Integral a => a -> a -> B
+di = ((0 ==) .) . flip rem
+{-# INLINE di #-}
 
 main :: IO ()
 main = interact $ fmap toUpper . yes . solve . ints
@@ -38,6 +45,6 @@ main = interact $ fmap toUpper . yes . solve . ints
     solve = aa
 
 aa :: [I] -> B
-aa = (== 0) . (`rem` 4) . foldl1 f . drop 1
+aa = di 4 . foldl1 f . drop 1
   where
     f = (+) . (10 *)
