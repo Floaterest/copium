@@ -45,4 +45,4 @@ main = interact $ show . solve . ints
     solve = bb . tail
 
 bb :: [I] -> I
-bb ns = maximum ns - minimum ns
+bb = liftM2 (-) maximum minimum
