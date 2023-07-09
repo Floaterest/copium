@@ -38,19 +38,24 @@ divides :: Integral a => a -> a -> B
 divides = ((0 ==) .) . flip rem
 {-# INLINE divides #-}
 
-count :: (a -> Bool) -> [a] -> Int
-count f = length . filter f
+-- | count number of elements that satisfies a condition
+countWith :: (a -> B) -> [a] -> Int
+countWith = (length .) . filter
+{-# INLINE countWith #-}
+
+-- | show tuple
+show2 :: (Show a, Show b) => (a, b) -> S
+show2 (a, b) = show a ++ " " ++ show b
 
 main :: IO ()
 main = interact $ tostr . solve . parse
   where
     parse = ints
     solve = cc . tail
-    tostr = unwords . fmap show
+    tostr = show2
 
-cc :: [I] -> [Int]
-cc ns = [max 1 a, a + b]
+cc :: [I] -> (Int, Int)
+cc = ap <$> (more .) <*> (less .) $ fmap (`div` 400)
   where
-    as = (`div` 400) <$> ns
-    b = count (>= 8) as
-    a = (length . group . sort . filter (< 8)) as
+    more = (max 1 &&&) . (+) . countWith (>= 8)
+    less = length . group . sort . filter (< 8)
