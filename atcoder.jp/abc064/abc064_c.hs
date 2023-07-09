@@ -55,7 +55,8 @@ main = interact $ tostr . solve . parse
     tostr = show2
 
 cc :: [I] -> (Int, Int)
-cc = ap <$> (mo (< 8) .) <*> (le (< 8) .) $ fmap (`div` 400)
+cc = liftM2 ap more less (< 8) $ fmap (`div` 400)
   where
-    mo = (>>> (max 1 &&&) . (+)) . countWith . (not .)
-    le = (>>> length . group . sort) . filter
+    cnot = countWith . (not .)
+    more = fmap ap . (.) . (>>> (max 1 &&&) . (+)) . cnot
+    less = (.) . (>>> length . group . sort) . filter
