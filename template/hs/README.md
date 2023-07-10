@@ -20,7 +20,7 @@ ap :: (e -> a -> b) -> (e -> a) -> e -> b -- S
 join :: (e -> e -> a) -> e -> a           -- W
 ```
 
-## Partially Applied Function
+## Partially Applied Functions
 
 any function in the form
 
