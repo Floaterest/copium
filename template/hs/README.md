@@ -1,6 +1,16 @@
 # Monads
 
-## Combinators
+## Reader
+
+any function in the form
+
+```hs
+pointful op f g x = f x `op` g x
+```
+
+is  equivalent to `liftM2`
+
+### Combinators
 
 > see [**SKI** calculus](https://en.wikipedia.org/wiki/SKI_combinator_calculus) and [**BCKW** system](https://en.wikipedia.org/wiki/B%2C_C%2C_K%2C_W_system)
 
@@ -19,13 +29,3 @@
 ap :: (e -> a -> b) -> (e -> a) -> e -> b -- S
 join :: (e -> e -> a) -> e -> a           -- W
 ```
-
-## Partially Applied Functions
-
-any function in the form
-
-```hs
-pointful op f g x = f x `op` g x
-```
-
-is  equivalent to `liftM2`
