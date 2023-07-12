@@ -5,6 +5,9 @@
 Every [Monad](https://wiki.haskell.org/Typeclassopedia#Monad) is an Applicative, and every [Applicative](https://wiki.haskell.org/Typeclassopedia#Applicative) is a [Functor](https://wiki.haskell.org/Typeclassopedia#Functor).
 
 ## Reader
+```
+((->) r)
+```
 
 ### LiftA2
 
