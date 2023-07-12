@@ -6,6 +6,8 @@ Every [Monad](https://wiki.haskell.org/Typeclassopedia#Monad) is an Applicative,
 
 ## Reader
 
+### Lift
+
 any function in the form
 
 ```hs
