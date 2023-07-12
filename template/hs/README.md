@@ -2,6 +2,8 @@
 
 > a [monoid](https://en.wikipedia.org/wiki/Monoid_(category_theory)) in the [category](https://en.wikipedia.org/wiki/Category_(mathematics)) of [endofunctors](https://en.wikipedia.org/wiki/Category_(mathematics))
 
+Every [Monad](https://wiki.haskell.org/Typeclassopedia#Monad) is an Applicative, and every [Applicative](https://wiki.haskell.org/Typeclassopedia#Applicative) is a [Functor](https://wiki.haskell.org/Typeclassopedia#Functor).
+
 ## Reader
 
 any function in the form
