@@ -6,7 +6,7 @@ Every [Monad](https://wiki.haskell.org/Typeclassopedia#Monad) is an Applicative,
 
 ## Reader
 
-### Lift
+### LiftA2
 
 any function in the form
 
@@ -14,7 +14,7 @@ any function in the form
 pointful op f g x = f x `op` g x
 ```
 
-is  equivalent to `liftA2`
+is  equivalent to `liftA2` (which is [pointfree](https://wiki.haskell.org/Pointfree))
 
 ### Combinators
 
