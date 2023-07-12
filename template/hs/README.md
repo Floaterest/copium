@@ -25,16 +25,17 @@ is  equivalent to `liftA2` (which is [pointfree](https://wiki.haskell.org/Pointf
 
 | Combinator | Pointfree Haskell Equivalent |
 | - | - |
-| **S** x y z = x z (y z) | `ap` or `(<*>)` |
+| **S** x y z = x z (y z) | `ap` |
 | **K** x y = x | `const` |
 | **I** x = x | `id` |
 | **B** x y z = x (y z) | `(.)` |
 | **C** x y z = x z y | `flip` |
 | **W** x y = x y y | `join` |
 
-**S** and **W** uses the fact that `(e ->)` is a [Reader Monad](http://hackage.haskell.org/packages/archive/mtl/latest/doc/html/Control-Monad-Reader.html)
+- **S** is equivalent to `ap` because `((->) r)` is an Applicative
+- **W** is equivalent to `join` because `((->) r)` is a Monad
 
 ```hs
-ap :: (e -> a -> b) -> (e -> a) -> e -> b -- S
-join :: (e -> e -> a) -> e -> a           -- W
+ap :: (r -> a -> b) -> (r -> a) -> r -> b -- S
+join :: (r -> r -> a) -> r -> a           -- W
 ```
