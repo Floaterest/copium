@@ -10,7 +10,7 @@ any function in the form
 pointful op f g x = f x `op` g x
 ```
 
-is  equivalent to `liftM2`
+is  equivalent to `liftA2`
 
 ### Combinators
 
