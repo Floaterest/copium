@@ -1,5 +1,7 @@
 # Monads
 
+> a [monoid](https://en.wikipedia.org/wiki/Monoid_(category_theory)) in the [category](https://en.wikipedia.org/wiki/Category_(mathematics)) of [endofunctors](https://en.wikipedia.org/wiki/Category_(mathematics))
+
 ## Reader
 
 any function in the form
