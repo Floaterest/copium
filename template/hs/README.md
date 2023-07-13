@@ -32,9 +32,6 @@ is  equivalent to `liftA2` (which is [pointfree](https://wiki.haskell.org/Pointf
 | **C** x y z = x z y | `flip` |
 | **W** x y = x y y | `join` |
 
-- **S** is equivalent to [`ap`](https://hackage.haskell.org/package/base/docs/Control-Monad.html#v:ap) because `((->) r)` is an Applicative
-- **W** is equivalent to [`join`](https://hackage.haskell.org/package/base/docs/Control-Monad.html#v:join) because `((->) r)` is a Monad
-
 ```hs
 ap :: (r -> a -> b) -> (r -> a) -> r -> b -- S
 join :: (r -> r -> a) -> r -> a           -- W
