@@ -11,7 +11,7 @@ Every [Monad](https://wiki.haskell.org/Typeclassopedia#Monad) is an Applicative,
 
 ### LiftA2
 
-any function in the form
+Any function in the form
 
 ```hs
 pointful op f g x = f x `op` g x
