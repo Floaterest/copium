@@ -1,6 +1,6 @@
 # Monads
 
-> a [monoid](https://en.wikipedia.org/wiki/Monoid_(category_theory)) in the [category](https://en.wikipedia.org/wiki/Category_(mathematics)) of [endofunctors](https://en.wikipedia.org/wiki/Category_(mathematics)), and every [Monad](https://wiki.haskell.org/Typeclassopedia#Monad) is an [Applicative](https://wiki.haskell.org/Typeclassopedia#Applicative), thus also a [Functor](https://wiki.haskell.org/Typeclassopedia#Functor)
+> A [monad](https://en.wikipedia.org/wiki/Monad_(category_theory)) is a [monoid](https://en.wikipedia.org/wiki/Monoid_(category_theory)) in the [category](https://en.wikipedia.org/wiki/Category_(mathematics)) of [endofunctors](https://en.wikipedia.org/wiki/Category_(mathematics)), and every [Monad](https://wiki.haskell.org/Typeclassopedia#Monad) is an [Applicative](https://wiki.haskell.org/Typeclassopedia#Applicative), thus also a [Functor](https://wiki.haskell.org/Typeclassopedia#Functor)
 
 Since all the type constructors here are Monads, `ap` and `(<*>)` are interchangeable
 
