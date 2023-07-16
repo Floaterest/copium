@@ -11,13 +11,11 @@ Since all the type constructors here are Monads, `ap` and `(<*>)` are interchang
 
 ### LiftA2
 
-Any function in the form
+Any function in this form is equivalent to `liftA2`
 
 ```hs
 pointful op f g x = f x `op` g x
 ```
-
-is  equivalent to `liftA2` (which is [pointfree](https://wiki.haskell.org/Pointfree))
 
 ### Combinators
 
