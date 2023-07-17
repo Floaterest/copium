@@ -24,8 +24,8 @@ pointful op f g x = f x `op` g x
 | Combinator | Haskell Equivalent |
 | - | - |
 | **S** x y z = x z (y z) | `ap :: (r -> a -> b) -> (r -> a) -> r -> b` |
-| **K** x y = x | `const` |
-| **I** x = x | `id` |
-| **B** x y z = x (y z) | `(.)` |
-| **C** x y z = x z y | `flip` |
+| **K** x y = x | `const :: a -> b -> a` |
+| **I** x = x | `id :: a -> a` |
+| **B** x y z = x (y z) | `(.) :: (b -> c) -> (a -> b) -> a -> c` |
+| **C** x y z = x z y | `flip :: (a -> b -> c) -> b -> a -> c` |
 | **W** x y = x y y | `join :: (r -> r -> a) -> r -> a` |
