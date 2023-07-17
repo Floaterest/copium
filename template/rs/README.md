@@ -3,7 +3,7 @@
 - [`abc211_c.rs`](./atcoder.jp/abc211/abc211_c.rs)
 -->
 
-# Algorithm
+# Algorithms
 
 ## Binary Search
 > use [`binary_search`](https://doc.rust-lang.org/std/primitive.slice.html#method.binary_search) instead
