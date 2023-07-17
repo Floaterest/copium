@@ -21,7 +21,7 @@ pointful op f g x = f x `op` g x
 
 > see [**SKI** calculus](https://en.wikipedia.org/wiki/SKI_combinator_calculus) and [**BCKW** system](https://en.wikipedia.org/wiki/B%2C_C%2C_K%2C_W_system)
 
-| Combinator | Pointfree Haskell Equivalent |
+| Combinator | Haskell Equivalent |
 | - | - |
 | **S** x y z = x z (y z) | `ap :: (r -> a -> b) -> (r -> a) -> r -> b` |
 | **K** x y = x | `const` |
