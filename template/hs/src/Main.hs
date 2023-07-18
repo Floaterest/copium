@@ -44,7 +44,7 @@ countWith = (length .) . filter
 
 -- | show tuple
 show2 :: (Show a, Show b) => (a, b) -> S
-show2 (a, b) = show a ++ " " ++ show b
+show2 (a, b) = show a <> " " <> show b
 
 main :: IO ()
 main = interact $ tostr . solve . parse
