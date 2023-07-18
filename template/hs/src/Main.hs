@@ -2,14 +2,14 @@
 
 {-# HLINT ignore "Use infix" #-}
 
-import Control.Applicative
-import Control.Arrow
-import Control.Monad
-import Data.Array
-import Data.Char
-import Data.Foldable
-import Data.List
-import Data.Maybe
+import Control.Applicative ()
+import Control.Arrow ()
+import Control.Monad ()
+import Data.Array ()
+import Data.Char ()
+import Data.Foldable ()
+import Data.List ()
+import Data.Maybe ()
 import Data.Tuple (swap)
 import Debug.Trace (trace)
 
