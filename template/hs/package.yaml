@@ -6,12 +6,6 @@ dependencies:
 
 ghc-options:
 - -Wall
-- -Widentities
-- -Wincomplete-record-updates
-- -Wmissing-export-lists
-- -Wmissing-home-modules
-- -Wpartial-fields
-- -Wredundant-constraints
 
 executables:
   copium:
