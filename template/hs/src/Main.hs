@@ -46,6 +46,9 @@ countWith = (length .) . filter
 show2 :: (Show a, Show b) => (a, b) -> S
 show2 (a, b) = show a <> " " <> show b
 
+read2 :: [S] -> (I, I)
+read2 [a, b] = (read a, read b)
+
 main :: IO ()
 main = interact $ tostr . solve . parse
   where
