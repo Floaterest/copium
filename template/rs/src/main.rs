@@ -7,7 +7,8 @@ use reader::Reader;
 use writer::Writer;
 
 // https://github.com/statiolake/proconio-rs/blob/master/proconio/src/source/line.rs
-pub mod reader {
+#[macro_use]
+mod reader {
     use std::any::type_name;
     use std::io::{BufRead, BufReader, Read};
     use std::iter::Peekable;
@@ -83,7 +84,8 @@ pub mod reader {
     impl_collection!((rv, Vec<_>), (rs, HashSet<_>), (rd, VecDeque<_>), (rh, BinaryHeap<_>));
 }
 
-pub mod writer {
+#[macro_use]
+mod writer {
     use std::fmt::Display;
     use std::io::{BufWriter, Write};
 
