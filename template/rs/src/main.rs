@@ -170,17 +170,6 @@ mod writer {
     }
 }
 
-#[cfg(debug_assertions)]
-fn main() {
-    use std::fs::File;
-    solve(
-        Reader::new(File::open("input.txt").unwrap()),
-        Writer::new(std::io::stdout()),
-        // Writer::new(File::create("output.txt").unwrap()),
-    )
-}
-
-#[cfg(not(debug_assertions))]
 fn main() {
     let (stdin, stdout) = (std::io::stdin(), std::io::stdout());
     solve(Reader::new(stdin.lock()), Writer::new(stdout.lock()));
