@@ -80,6 +80,7 @@ mod reader {
     }
     macro_rules! impl_collection {
         ($(($macro:ident, $type:ty)),+) => ($(#[macro_export] macro_rules! $macro {
+            ($re:expr, [chars; $len:expr]) => (r!($re, [(chars, $type); $len]).collect::<$type>());
             ($re:expr, [$func:ident; $len:expr]) => (r!($re, [$func; $len]).collect::<$type>());
             ($re:expr, [$item:tt; $len:expr]) => (std::iter::repeat_with(|| $macro!($re, $item)).take($len).collect::<$type>());
         })+)
