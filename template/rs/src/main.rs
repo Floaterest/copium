@@ -74,6 +74,7 @@ mod reader {
 
     #[macro_export]
     macro_rules! r {
+        ($re:expr, ($func:ident, $type:ty)) => ($re.$func::<$type>());
         ($re:expr, $func:ident) => ($re.$func());
         ($re:expr, [$token:tt; $len:expr]) => (std::iter::repeat_with(|| r!($re, $token)).take($len));
         ($re:expr, $($item:tt),+) => (($(r!($re, $item)),+));
