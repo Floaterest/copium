@@ -8,7 +8,7 @@ use writer::Writer;
 
 // https://github.com/statiolake/proconio-rs/blob/master/proconio/src/source/line.rs
 #[macro_use]
-mod reader {
+pub mod reader {
     use std::any::type_name;
     use std::io::{BufRead, BufReader, Read};
     use std::iter::{FromIterator, Peekable};
@@ -90,7 +90,7 @@ mod reader {
 }
 
 #[macro_use]
-mod writer {
+pub mod writer {
     use std::fmt::Display;
     use std::io::{BufWriter, Write};
 
