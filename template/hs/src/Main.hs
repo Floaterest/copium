@@ -2,14 +2,14 @@
 
 {-# HLINT ignore "Use infix" #-}
 
-import Control.Applicative
-import Control.Arrow
-import Control.Monad
-import Data.Array
-import Data.Char
-import Data.Foldable
-import Data.List
-import Data.Maybe
+import Control.Applicative ()
+import Control.Arrow ()
+import Control.Monad ()
+import Data.Array ()
+import Data.Char ()
+import Data.Foldable ()
+import Data.List ()
+import Data.Maybe ()
 import Data.Tuple (swap)
 import Debug.Trace (trace)
 
@@ -44,7 +44,10 @@ countWith = (length .) . filter
 
 -- | show tuple
 show2 :: (Show a, Show b) => (a, b) -> S
-show2 (a, b) = show a ++ " " ++ show b
+show2 (a, b) = show a <> " " <> show b
+
+read2 :: [S] -> (I, I)
+read2 [a, b] = (read a, read b)
 
 main :: IO ()
 main = interact $ tostr . solve . parse

@@ -7,10 +7,11 @@ use reader::Reader;
 use writer::Writer;
 
 // https://github.com/statiolake/proconio-rs/blob/master/proconio/src/source/line.rs
+#[macro_use]
 pub mod reader {
     use std::any::type_name;
     use std::io::{BufRead, BufReader, Read};
-    use std::iter::Peekable;
+    use std::iter::{FromIterator, Peekable};
     use std::mem::transmute;
     use std::str::{FromStr, SplitWhitespace};
 
@@ -66,16 +67,21 @@ pub mod reader {
         pub fn u1(&mut self) -> usize {
             self.u().checked_sub(1).expect("Attempted read 0 as usize1")
         }
+        pub fn chars<T: FromIterator<char>>(&mut self) -> T {
+            self.s().chars().collect()
+        }
     }
 
     #[macro_export]
     macro_rules! r {
+        ($re:expr, ($func:ident, $type:ty)) => ($re.$func::<$type>());
         ($re:expr, $func:ident) => ($re.$func());
-        ($re:expr, [$func:ident; $len:expr]) => (std::iter::repeat_with(|| $re.$func()).take($len));
+        ($re:expr, [$token:tt; $len:expr]) => (std::iter::repeat_with(|| r!($re, $token)).take($len));
         ($re:expr, $($item:tt),+) => (($(r!($re, $item)),+));
     }
     macro_rules! impl_collection {
         ($(($macro:ident, $type:ty)),+) => ($(#[macro_export] macro_rules! $macro {
+            ($re:expr, [chars; $len:expr]) => (r!($re, [(chars, $type); $len]).collect::<$type>());
             ($re:expr, [$func:ident; $len:expr]) => (r!($re, [$func; $len]).collect::<$type>());
             ($re:expr, [$item:tt; $len:expr]) => (std::iter::repeat_with(|| $macro!($re, $item)).take($len).collect::<$type>());
         })+)
@@ -83,6 +89,7 @@ pub mod reader {
     impl_collection!((rv, Vec<_>), (rs, HashSet<_>), (rd, VecDeque<_>), (rh, BinaryHeap<_>));
 }
 
+#[macro_use]
 pub mod writer {
     use std::fmt::Display;
     use std::io::{BufWriter, Write};
@@ -168,17 +175,6 @@ pub mod writer {
     }
 }
 
-#[cfg(debug_assertions)]
-fn main() {
-    use std::fs::File;
-    solve(
-        Reader::new(File::open("input.txt").unwrap()),
-        Writer::new(std::io::stdout()),
-        // Writer::new(File::create("output.txt").unwrap()),
-    )
-}
-
-#[cfg(not(debug_assertions))]
 fn main() {
     let (stdin, stdout) = (std::io::stdin(), std::io::stdout());
     solve(Reader::new(stdin.lock()), Writer::new(stdout.lock()));
