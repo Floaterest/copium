@@ -3,16 +3,20 @@ struct Solution;
 
 impl Solution {
     pub fn erase_overlap_intervals(mut intervals: Vec<Vec<i32>>) -> i32 {
-        let mut n = 0;
-        let mut f = i32::MIN;
         intervals.sort_by_key(|i| i[1]);
-        for interval in &intervals {
-            if interval[0] >= f {
-                n += 1;
-                f = interval[1];
-            }
-        }
-        (intervals.len() - n) as i32
+        intervals
+            .iter()
+            .fold(
+                (0, i32::MIN),
+                |(n, f), interval| {
+                    if interval[0] >= f {
+                        (n, interval[1])
+                    } else {
+                        (n + 1, f)
+                    }
+                },
+            )
+            .0
     }
 }
 
