@@ -13,8 +13,8 @@ def convert(url: str):
             return [domain, contest, f'{contest}_{task}']
         case ['atcoder.jp', _, contest, _, task]:
             return [domain, contest, task]
-        case ['leetcode.com', _, problem]:
-            return [domain, '', problem]
+        case ['leetcode.com', _, problem, _]:
+            return [domain, domain.removesuffix('.com'), problem]
         case _:
             exit('Unknown url: ' + '/'.join(parts))
 
