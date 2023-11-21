@@ -7,7 +7,7 @@ run() {
 	elif [ -f "Cargo.toml" ]; then
 		cargo run
 	else
-		echo 'No project found'
+		echo 'No project found' 1>&2;
 	fi < input.txt | bat --file-name output.txt
 }
 
