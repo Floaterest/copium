@@ -1,6 +1,6 @@
 #!python3
 
-import os, sys, subprocess
+import os, sys, subprocess, shutil
 
 import pyperclip
 
@@ -12,9 +12,9 @@ def project() -> (str, str):
     """
     files = set(os.listdir())
     if 'Cargo.toml' in files:
-        return ('src/main.rs', 'cargo')
+        return ('src/main.rs', shutil.which('cargo'))
     elif 'stack.yaml' in files:
-        return ('src/Main.hs', 'stack')
+        return ('src/Main.hs', shutil.which('stack'))
     else:
         raise Exception('No project found')
 
