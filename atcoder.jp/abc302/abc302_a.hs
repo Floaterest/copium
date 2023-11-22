@@ -45,11 +45,19 @@ instance Readable Integer where
 instance Readable [Integer] where
     next = Parser $ (>>= maybeToList . fmap fst . BS.readInteger) >>> (,[])
 
+class ToString a where
+    tostr :: a -> ByteString
+
+instance ToString Integer where
+    tostr = BS.pack . show
+
+instance ToString a => ToString [a] where
+    tostr = BS.unwords . fmap tostr
+
 main :: IO ()
 main = BS.interact $ tostr . fst . p . BS.words
   where
     Parser p = aa <$> next
-    tostr = BS.pack . show
 
 aa :: [Integer] -> Integer
 aa [a, b] = div (a + b - 1) b
