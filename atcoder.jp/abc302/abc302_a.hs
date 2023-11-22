@@ -14,11 +14,9 @@ import Data.Char
 import Data.Foldable
 import Data.List
 import Data.Maybe
-import Prelude hiding (read)
 
 type ByteString = BS.ByteString
 
---- Parser
 newtype Parser a = Parser ([ByteString] -> (a, [ByteString]))
 
 instance Functor Parser where
@@ -37,19 +35,15 @@ instance Monad Parser where
       where
         pb (a, bs) = let Parser parser = f a in parser bs
 
--- Readable
 class Readable a where
-    read :: ByteString -> a
-    -- | unwraps a BS read function
-    unwrap :: (ByteString -> Maybe (a, ByteString)) -> ByteString -> a
-    unwrap reader s = let Just (res, _) = reader s in res
+    next :: Parser a
+    fromRead :: (ByteString -> Maybe (a, ByteString)) -> Parser a
+    fromRead f = Parser pa
+      where
+        pa (b : bt) = let Just (res, _) = f b in (res, bt)
 
 instance Readable Integer where
-    read = unwrap BS.readInteger
-
-
-next :: Readable a => Parser a
-next = Parser (\(b : bt) -> (read b, bt))
+    next = fromRead BS.readInteger
 
 main :: IO ()
 main = BS.interact $ tostr . fst . p . BS.words
