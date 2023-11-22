@@ -7,7 +7,7 @@ case "$XDG_SESSION_TYPE" in
         xo() { xclip -selection clipboard -o; };;
     wayland)
         xc() { wl-copy; }
-        xo() { wl-paste -t 'text/plain;charset=utf-8;'; };;
+        xo() { wl-paste -t 'text/plain;charset=utf-8'; };;
     *) echo "Error: Unsupported session type '$XDG_SESSION_TYPE'." ;;
 esac
 
