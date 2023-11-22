@@ -1,4 +1,5 @@
 -- https://atcoder.jp/contests/abc302/tasks/abc302_a
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE TupleSections #-}
 {-# HLINT ignore "Use infix" #-}
@@ -45,11 +46,16 @@ class Readable a where
 instance Readable Integer where
     next = fromRead BS.readInteger
 
+instance Readable [Integer] where
+    next = Parser p
+      where
+        p bs = (bs >>= maybeToList . fmap fst . BS.readInteger, [])
+
 main :: IO ()
 main = BS.interact $ tostr . fst . p . BS.words
   where
-    Parser p = aa <$> next <*> next
+    Parser p = aa <$> next
     tostr = BS.pack . show
 
-aa :: Integer -> Integer -> Integer
-aa a b = div (a + b - 1) b
+aa :: [Integer] -> Integer
+aa [a, b] = div (a + b - 1) b
