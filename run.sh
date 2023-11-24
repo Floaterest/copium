@@ -11,6 +11,7 @@ case "$XDG_SESSION_TYPE" in
     *) echo "Error: Unsupported session type '$XDG_SESSION_TYPE'." ;;
 esac
 
+# detect project (Rust or Haskell) and source code file
 if [ -f "package.yaml" ]; then
     run() { stack run; }
     code='src/Main.hs'
@@ -24,18 +25,18 @@ fi
 input=$1
 while [[ "$input" != 'q' ]]; do
     case "$input" in
-        q)
+        q) # quit
             exit 0 ;;
-        r)
+        r) # run with input.txt
             bat input.txt
             run < input.txt | bat --file-name output.txt ;;
-        c)
+        c) # copy code to clipboard
             xc < $code
             echo "Copied $code to clipboard" ;;
-        p)
+        p) # paste input from clipboard
             xo > input.txt
             bat input.txt ;;
-        t)
+        t) # run with input from clipboard
             xo > input.txt
             bat input.txt
             run < input.txt | bat --file-name output.txt ;;
