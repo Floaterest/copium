@@ -1,62 +1,68 @@
 -- https://atcoder.jp/contests/abc064/tasks/abc064_c
-{-# OPTIONS_GHC -Wno-incomplete-patterns -Wno-unrecognised-pragmas -Wno-unused-imports -Wno-unused-top-binds #-}
-
+{-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE TupleSections #-}
 {-# HLINT ignore "Use infix" #-}
+{-# OPTIONS_GHC -Wno-incomplete-patterns -Wno-unrecognised-pragmas -Wno-unused-imports -Wno-unused-top-binds #-}
+{-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 
 import Control.Applicative
 import Control.Arrow
 import Control.Monad
 import Data.Array
+import qualified Data.ByteString.Char8 as BS
 import Data.Char
 import Data.Foldable
 import Data.List
 import Data.Maybe
-import Data.Tuple (swap)
-import Debug.Trace (trace)
 
-type B = Bool
-type C = Char
-type I = Integer
-type S = String
+type ByteString = BS.ByteString
 
--- | answer Yes or No
-yes :: B -> S
-yes True = "Yes\n"
-yes False = "No\n"
+newtype Parser a = Parser ([ByteString] -> Maybe (a, [ByteString]))
 
--- | read @[Integer]@
-ints :: S -> [I]
-ints = fmap read . words
-{-# INLINE ints #-}
+instance Functor Parser where
+    fmap f (Parser p) = Parser $ (first f <$>) . p
 
--- | pairwise zipWith
-pairWith :: (a -> a -> b) -> [a] -> [b]
-pairWith = (<*> tail) . zipWith
-{-# INLINE pairWith #-}
+instance Applicative Parser where
+    pure a = Parser $ fmap (a,) . Just
+    liftA2 :: (a -> b -> c) -> Parser a -> Parser b -> Parser c
+    liftA2 f (Parser pa) (Parser pb) = Parser $ pa >=> pc
+      where
+        pc (a, bs) = (<$> pb bs) $ first $ f a
 
-divides :: Integral a => a -> a -> B
-divides = ((0 ==) .) . flip rem
-{-# INLINE divides #-}
+instance Monad Parser where
+    (>>=) :: Parser a -> (a -> Parser b) -> Parser b
+    Parser pa >>= f = Parser $ pa >=> pb
+      where
+        pb (a, bs) = let (Parser p) = f a in p bs
 
--- | count number of elements that satisfies a condition
-countWith :: (a -> B) -> [a] -> Int
-countWith = (length .) . filter
-{-# INLINE countWith #-}
+parse :: Parser a -> ByteString -> a
+-- split BS into words, then unwrap result of parse
+parse (Parser p) = (\(Just res) -> fst res) . p . BS.words
 
--- | show tuple
-show2 :: (Show a, Show b) => (a, b) -> S
-show2 (a, b) = show a ++ " " ++ show b
+next :: Parser ByteString
+next = Parser uncons
+
+int :: Parser Integer
+int = (\(Just res) -> fst res) . BS.readInteger <$> next
+
+ints :: Parser [Integer]
+ints = Parser $ \bs -> Just (p bs, [])
+  where
+    p bs = bs >>= maybeToList . fmap fst . BS.readInteger
+
+count :: (a -> Bool) -> [a] -> Int
+count f = length . filter f
 
 main :: IO ()
-main = interact $ tostr . solve . parse
+-- main = BS.getContents >>= putStrLn . tostr . parse p
+main = BS.interact $ tostr . parse p
   where
-    parse = ints
-    solve = cc . tail
-    tostr = show2
+    p = cc <$> ints
+    tostr = BS.pack . unwords . fmap show
 
-cc :: [I] -> (Int, Int)
-cc = liftM2 ap more less (< 8) $ fmap (`div` 400)
+cc :: [Integer] -> [Int]
+cc (_ : ns) = [max 1 a, a + b]
   where
-    cnot = countWith . (not .)
-    more = fmap ap . (.) . (>>> (max 1 &&&) . (+)) . cnot
-    less = (.) . (>>> length . group . sort) . filter
+    as = (`div` 400) <$> ns
+    b = count (>= 8) as
+    a = (length . group . sort . filter (< 8)) as
