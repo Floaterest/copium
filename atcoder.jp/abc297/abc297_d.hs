@@ -47,6 +47,9 @@ class Show a => Serde a where
     desn :: Int -> Parser [a]
     desn n = replicateM n des
 
+instance (Serde a, Serde b) => Serde (a, b) where
+    des = liftA2 (,) des des
+
 instance Serde Bool where
     ser True = BS.pack "Yes\n"
     ser False = BS.pack "No\n"
@@ -65,10 +68,10 @@ instance {-# OVERLAPS #-} Serde a => Serde [a] where
 main :: IO ()
 main = BS.interact $ ser . fst . p . BS.words
   where
-    Parser p = aa <$> desn 2
+    Parser p = aa <$> des
 
-aa :: [Integer] -> Integer
-aa [n, m] = subtract 1 $ sum $ unfoldr f (n, m)
+aa :: (Integer, Integer) -> Integer
+aa = subtract 1 . sum . unfoldr f
   where
     f (_, b) | b == 0 = Nothing
     f (a, b) = Just (a `div` b, let u = a `mod` b in (max u b, min u b))
