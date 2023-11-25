@@ -40,9 +40,13 @@ instance Monad Parser where
 -- Readable
 class Readable a where
     read :: ByteString -> a
+    -- | unwraps a BS read function
+    unwrap :: (ByteString -> Maybe (a, ByteString)) -> ByteString -> a
+    unwrap reader s = let Just (res, _) = reader s in res
 
 instance Readable Integer where
-    read s = let Just (res, _) = BS.readInteger s in res
+    read = unwrap BS.readInteger
+
 
 next :: Readable a => Parser a
 next = Parser (\(b : bt) -> (read b, bt))
