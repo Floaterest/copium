@@ -47,9 +47,7 @@ instance Readable Integer where
     next = fromRead BS.readInteger
 
 instance Readable [Integer] where
-    next = Parser p
-      where
-        p bs = (bs >>= maybeToList . fmap fst . BS.readInteger, [])
+    next = Parser $ (,[]) . (>>= maybeToList . fmap fst . BS.readInteger)
 
 main :: IO ()
 main = BS.interact $ tostr . fst . p . BS.words
