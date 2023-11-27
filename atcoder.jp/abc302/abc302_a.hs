@@ -32,22 +32,18 @@ instance Applicative Parser where
 
 instance Monad Parser where
     (>>=) :: Parser a -> (a -> Parser b) -> Parser b
-    Parser pa >>= f = Parser $ pb . pa
-      where
-        pb (a, bs) = let Parser parser = f a in parser bs
+    Parser pa >>= f = Parser $ (\(a, bs) -> let Parser p = f a in p bs) . pa
 
 class Readable a where
     next :: Parser a
     fromRead :: (ByteString -> Maybe (a, ByteString)) -> Parser a
-    fromRead f = Parser pa
-      where
-        pa (b : bt) = let Just (res, _) = f b in (res, bt)
+    fromRead f = Parser $ \(b : bt) -> let Just (a, _) = f b in (a, bt)
 
 instance Readable Integer where
     next = fromRead BS.readInteger
 
 instance Readable [Integer] where
-    next = Parser $ (,[]) . (>>= maybeToList . fmap fst . BS.readInteger)
+    next = Parser $ (>>= maybeToList . fmap fst . BS.readInteger) >>> (,[])
 
 main :: IO ()
 main = BS.interact $ tostr . fst . p . BS.words
