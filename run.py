@@ -1,6 +1,7 @@
 #!python3
 
 import os, sys, subprocess, shutil
+from subprocess import PIPE
 
 import pyperclip
 
@@ -24,7 +25,11 @@ INPUT = 'input.txt'
 
 def run():
     with open(INPUT, 'r') as f:
-        proc = subprocess.Popen([RUN, 'run'], stdin=f)
+        inp = f.read()
+        print(inp)
+        proc = subprocess.Popen([RUN, 'run'], stdin=PIPE)
+        out, err = proc.communicate(inp.encode())
+        # print(out, err)
 
 
 def help():
