@@ -1,6 +1,10 @@
 -- https://atcoder.jp/contests/abc064/tasks/abc064_c
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE UndecidableInstances #-}
 {-# HLINT ignore "Use infix" #-}
 {-# OPTIONS_GHC -Wno-incomplete-patterns -Wno-unrecognised-pragmas -Wno-unused-imports -Wno-unused-top-binds #-}
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
@@ -17,52 +21,51 @@ import Data.Maybe
 
 type ByteString = BS.ByteString
 
-newtype Parser a = Parser ([ByteString] -> Maybe (a, [ByteString]))
+newtype Parser a = Parser ([ByteString] -> (a, [ByteString]))
 
 instance Functor Parser where
-    fmap f (Parser p) = Parser $ (first f <$>) . p
+    fmap f (Parser p) = Parser $ first f <$> p
 
 instance Applicative Parser where
-    pure a = Parser $ fmap (a,) . Just
+    pure a = Parser (a,)
     liftA2 :: (a -> b -> c) -> Parser a -> Parser b -> Parser c
-    liftA2 f (Parser pa) (Parser pb) = Parser $ pa >=> pc
+    liftA2 f (Parser pa) (Parser pb) = Parser $ pc . second pb . pa
       where
-        pc (a, bs) = (<$> pb bs) $ first $ f a
+        pc (a, (b, bs)) = (f a b, bs)
 
 instance Monad Parser where
     (>>=) :: Parser a -> (a -> Parser b) -> Parser b
-    Parser pa >>= f = Parser $ pa >=> pb
-      where
-        pb (a, bs) = let (Parser p) = f a in p bs
+    Parser pa >>= f = Parser $ (\(a, bs) -> let Parser p = f a in p bs) . pa
 
-parse :: Parser a -> ByteString -> a
--- split BS into words, then unwrap result of parse
-parse (Parser p) = (\(Just res) -> fst res) . p . BS.words
+class Readable a where
+    next :: Parser a
+    fromRead :: (ByteString -> Maybe (a, ByteString)) -> Parser a
+    fromRead f = Parser $ \(b : bt) -> let Just (a, _) = f b in (a, bt)
 
-next :: Parser ByteString
-next = Parser uncons
+instance Readable Integer where
+    next = fromRead BS.readInteger
 
-int :: Parser Integer
-int = (\(Just res) -> fst res) . BS.readInteger <$> next
+instance Readable [Integer] where
+    next = Parser $ (>>= maybeToList . fmap fst . BS.readInteger) >>> (,[])
 
-ints :: Parser [Integer]
-ints = Parser $ \bs -> Just (p bs, [])
-  where
-    p bs = bs >>= maybeToList . fmap fst . BS.readInteger
+class ToString a where
+    tostr :: a -> ByteString
 
-count :: (a -> Bool) -> [a] -> Int
-count f = length . filter f
+instance (Show a, Num a) => ToString a where
+    tostr = BS.pack . show
+
+instance {-# OVERLAPS #-} ToString a => ToString [a] where
+    tostr = BS.unwords . fmap tostr
 
 main :: IO ()
--- main = BS.getContents >>= putStrLn . tostr . parse p
-main = BS.interact $ tostr . parse p
+main = BS.interact $ tostr . fst . p . BS.words
   where
-    p = cc <$> ints
-    tostr = BS.pack . unwords . fmap show
+    Parser p = cc <$> next
 
 cc :: [Integer] -> [Int]
 cc (_ : ns) = [max 1 a, a + b]
   where
     as = (`div` 400) <$> ns
+    count f = length . filter f
     b = count (>= 8) as
     a = (length . group . sort . filter (< 8)) as
