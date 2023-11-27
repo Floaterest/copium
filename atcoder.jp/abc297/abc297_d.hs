@@ -39,9 +39,13 @@ instance Monad Parser where
 class Show a => Serde a where
     ser :: a -> ByteString
     ser = BS.pack . show
+
+    re :: ByteString -> Maybe (a, ByteString)
     des :: Parser a
     des = Parser $ \(b : bt) -> let Just (a, _) = re b in (a, bt)
-    re :: ByteString -> Maybe (a, ByteString)
+
+    desn :: Int -> Parser [a]
+    desn n = replicateM n des
 
 instance Serde Bool where
     ser True = BS.pack "Yes\n"
@@ -61,10 +65,10 @@ instance {-# OVERLAPS #-} Serde a => Serde [a] where
 main :: IO ()
 main = BS.interact $ ser . fst . p . BS.words
   where
-    Parser p = aa <$> des <*> des
+    Parser p = aa <$> desn 2
 
-aa :: Integer -> Integer -> Integer
-aa n m = subtract 1 $ sum $ unfoldr f (n, m)
+aa :: [Integer] -> Integer
+aa [n, m] = subtract 1 $ sum $ unfoldr f (n, m)
   where
     f (_, b) | b == 0 = Nothing
     f (a, b) = Just (a `div` b, let u = a `mod` b in (max u b, min u b))
