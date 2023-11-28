@@ -34,7 +34,7 @@ while [[ "$input" != 'q' ]]; do
             echo "Copied $code to clipboard" ;;
         p)
             xo > input.txt
-            echo "Pasted to input.txt" ;;
+            bat input.txt ;;
     esac
     printf '>>> '
     read input
