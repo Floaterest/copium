@@ -35,6 +35,10 @@ while [[ "$input" != 'q' ]]; do
         p)
             xo > input.txt
             bat input.txt ;;
+        t)
+            xo > input.txt
+            bat input.txt
+            run < input.txt | bat --file-name output.txt ;;
     esac
     printf '>>> '
     read input
