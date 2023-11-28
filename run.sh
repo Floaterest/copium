@@ -29,6 +29,9 @@ while [[ "$input" != 'q' ]]; do
         r)
             bat input.txt
             run < input.txt | bat --file-name output.txt ;;
+        c)
+            xc < $code
+            echo "Copied $code to clipboard" ;;
     esac
     printf '>>> '
     read input
