@@ -1,9 +1,7 @@
 -- https://atcoder.jp/contests/abc297/tasks/abc297_c
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE InstanceSigs #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TupleSections #-}
-{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-incomplete-patterns -Wno-unrecognised-pragmas -Wno-unused-imports -Wno-unused-top-binds #-}
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 {-# OPTIONS_GHC -Wno-missing-methods #-}
@@ -58,7 +56,7 @@ instance Serde String where
     ser = B.pack
     des = Parser $ B.break isSpace >>> B.unpack *** B.tail
 instance {-# OVERLAPS #-} Serde [String] where
-    ser = B.unlines . fmap ser
+    ser = B.unlines . fmap ser -- print [String] with \n
 instance {-# OVERLAPS #-} Serde a => Serde [a] where
     ser = B.unwords . fmap ser
     des = Parser $ unfoldr f >>> (,B.empty)
@@ -74,7 +72,7 @@ main = B.interact $ ser . fst . p
     Parser p = fmap cc $ desn 2 >>= \(a : _) -> desn a
 
 cc :: [S] -> [S]
-cc ss = f <$> ss
+cc = fmap f
   where
     f :: S -> S
     f [] = []
