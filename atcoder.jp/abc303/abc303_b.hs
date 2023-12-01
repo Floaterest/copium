@@ -15,6 +15,7 @@ import Data.Array
 import qualified Data.ByteString.Char8 as B
 import Data.Char
 import Data.Foldable
+import Data.Function
 import Data.List
 import Data.Maybe
 import Data.Set as S
@@ -109,7 +110,7 @@ main = B.interact $ ser . fst . p
     Parser p = des >>= (\(n, m) -> cc n <$> replicateM m (desn n))
 
 cc :: I -> [[I]] -> I
-cc n nss = S.size (S.fromList as) - S.size (S.fromList bs)
+cc n nss = on (-) (S.size . S.fromList) as bs
   where
     as = [1 .. n - 1] >>= \a -> (a,) <$> [a + 1 .. n]
-    bs = nss >>= (pairs >>> fmap (uncurry min &&& uncurry max))
+    bs = (>>=) nss $ pairs >>> fmap (on (&&&) uncurry min max)
