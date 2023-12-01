@@ -76,11 +76,7 @@ instance {-# OVERLAPS #-} Serde a => Serde [a] where
 -- {{ Debug
 
 dbg :: Show a => a -> a
-#ifdef DEBUG
 dbg x = let !_ = traceShow x () in x
-#else
-dbg = id
-#endif
 
 -- | ($) with dbg
 ($$) :: Show a => (a -> b) -> a -> b
@@ -96,23 +92,24 @@ infixr 9 .$
 
 -- }}
 
+-- | tuple window
 pairs :: [a] -> [(a, a)]
--- pairs as = zip as (tail as)
 pairs = zip <*> tail
+
+-- | tupli window with
 pairW :: (a -> a -> b) -> [a] -> [b]
 pairW = (<*> tail) . zipWith
 
 type S = String
-type I = Integer
+type I = Int
 
 main :: IO ()
 main = B.interact $ ser . fst . p
   where
-    Parser p = des >>= (\(n, m) -> cc n m <$> replicateM m (desn n))
+    Parser p = des >>= (\(n, m) -> cc n <$> replicateM m (desn n))
 
-cc :: Int -> Int -> [[I]] -> Int
-cc n _ is = S.size ns - S.size as
+cc :: I -> [[I]] -> I
+cc n nss = S.size (S.fromList as) - S.size (S.fromList bs)
   where
-    ns = S.fromList [(a, b) | a <- [1 .. n - 1], b <- [a + 1 .. n]]
-    as = S.fromList [(max a b, min a b) | n <- is, (a, b) <- pairs n]
-    !_ = dbg as
+    as = [1 .. n - 1] >>= \a -> (a,) <$> [a + 1 .. n]
+    bs = nss >>= (pairs >>> fmap (uncurry min &&& uncurry max))
