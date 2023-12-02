@@ -107,7 +107,7 @@ type I = Int
 main :: IO ()
 main = B.interact $ ser . fst . p
   where
-    Parser p = desn 4 >>= \[_, m, h, k] -> des >>= \s -> cc h k s <$> replicateM m des
+    Parser p = desn 4 >>= \[_, m, h, k] -> des >>= (<$> replicateM m des) . cc h k
 
 cc :: I -> I -> S -> [(I, I)] -> Bool
 cc h' k s' ps' = hh >= 0
