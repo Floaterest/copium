@@ -107,7 +107,7 @@ type I = Int
 main :: IO ()
 main = B.interact $ ser . fst . p
   where
-    Parser p = des >>= (\(n, m) -> cc n <$> replicateM m (desn n))
+    Parser p = des >>= (\(n, m) -> liftA2 (<$>) cc (replicateM m . desn) n)
 
 cc :: I -> [[I]] -> I
 cc n nss = on (-) (S.size . S.fromList) as bs
