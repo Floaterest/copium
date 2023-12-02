@@ -1,3 +1,14 @@
+# Useful Built-ins
+
+```hs
+-- flip ($)
+(&) :: a -> (a -> b) -> b
+-- on (+) f x y = f x + f y
+on :: (b -> b -> c) -> (a -> b) -> a -> a -> c
+-- liftA2 (+) f g x = f x + g x
+liftA2 :: (a -> b -> c) -> (r -> a) -> (r -> b) -> r -> c
+```
+
 # Monads
 
 > A [monad](https://en.wikipedia.org/wiki/Monad_(category_theory)) is a [monoid](https://en.wikipedia.org/wiki/Monoid_(category_theory)) in the [category](https://en.wikipedia.org/wiki/Category_(mathematics)) of [endofunctors](https://en.wikipedia.org/wiki/Category_(mathematics)); every [Monad](https://wiki.haskell.org/Typeclassopedia#Monad) is an [Applicative](https://wiki.haskell.org/Typeclassopedia#Applicative), thus also a [Functor](https://wiki.haskell.org/Typeclassopedia#Functor)
