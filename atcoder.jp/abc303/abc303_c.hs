@@ -101,15 +101,16 @@ pairs = zip <*> tail
 pairW :: (a -> a -> b) -> [a] -> [b]
 pairW = (<*> tail) . zipWith
 
-type S = String
+type B = Bool
 type I = Int
+type S = String
 
 main :: IO ()
 main = B.interact $ ser . fst . p
   where
     Parser p = desn 4 >>= \[_, m, h, k] -> des >>= (<$> replicateM m des) . cc h k
 
-cc :: I -> I -> S -> [(I, I)] -> Bool
+cc :: I -> I -> S -> [(I, I)] -> B
 cc h' k s' ps' = hh >= 0
   where
     g (x, y, h, s)
