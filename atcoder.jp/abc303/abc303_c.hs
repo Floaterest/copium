@@ -4,10 +4,11 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE TupleSections #-}
-{-# OPTIONS_GHC -Wno-incomplete-patterns -Wno-unrecognised-pragmas -Wno-unused-imports -Wno-unused-top-binds #-}
+{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 {-# OPTIONS_GHC -Wno-missing-methods #-}
 {-# OPTIONS_GHC -Wno-name-shadowing #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas -Wno-unused-imports -Wno-unused-top-binds #-}
 
 import Control.Applicative
 import Control.Arrow
@@ -103,8 +104,10 @@ pairW :: (a -> a -> b) -> [a] -> [b]
 pairW = (<*> tail) . zipWith
 
 type B = Bool
+type C = Char
 type I = Int
 type S = String
+type Set = S.Set
 
 main :: IO ()
 main = B.interact $ ser . fst . p
@@ -112,13 +115,20 @@ main = B.interact $ ser . fst . p
     Parser p = desn 4 >>= \[_, m, h, k] -> des >>= (<$> replicateM m des) . cc h k
 
 cc :: I -> I -> S -> [(I, I)] -> B
-cc h k s ps = let (_, _, hh, _) = foldl f (0, 0, h, S.fromList ps) s in hh >= 0
+cc h k s ps = f k (0, 0) h s (S.fromList ps)
+
+mv :: (I, I) -> C -> (I, I)
+mv (x, y) 'R' = (x + 1, y)
+mv (x, y) 'L' = (x - 1, y)
+mv (x, y) 'U' = (x, y + 1)
+mv (x, y) 'D' = (x, y - 1)
+
+f :: I -> (I, I) -> I -> [C] -> S.Set (I, I) -> Bool
+f _ _ _ [] _ = True
+f k p h (c : ct) s
+    | h' < 0 = False
+    | h' < k && S.member p' s = f k p' k ct (S.delete p' s)
+    | otherwise = f k p' h' ct s
   where
-    g (x, y, h, s)
-        | h < 0 = (x, y, -1, s)
-        | S.member (x, y) s && h < k = (x, y, k, S.delete (x, y) s)
-        | otherwise = (x, y, h, s)
-    f (x, y, h, s) 'R' = g (x + 1, y, h - 1, s)
-    f (x, y, h, s) 'L' = g (x - 1, y, h - 1, s)
-    f (x, y, h, s) 'U' = g (x, y + 1, h - 1, s)
-    f (x, y, h, s) 'D' = g (x, y - 1, h - 1, s)
+    p' = mv p c
+    h' = h - 1
