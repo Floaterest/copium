@@ -7,6 +7,7 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns -Wno-unrecognised-pragmas -Wno-unused-imports -Wno-unused-top-binds #-}
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 {-# OPTIONS_GHC -Wno-missing-methods #-}
+{-# OPTIONS_GHC -Wno-name-shadowing #-}
 
 import Control.Applicative
 import Control.Arrow
@@ -111,7 +112,7 @@ main = B.interact $ ser . fst . p
     Parser p = desn 4 >>= \[_, m, h, k] -> des >>= (<$> replicateM m des) . cc h k
 
 cc :: I -> I -> S -> [(I, I)] -> B
-cc h' k s' ps' = hh >= 0
+cc h k s ps = let (_, _, hh, _) = foldl f (0, 0, h, S.fromList ps) s in hh >= 0
   where
     g (x, y, h, s)
         | h < 0 = (x, y, -1, s)
@@ -121,4 +122,3 @@ cc h' k s' ps' = hh >= 0
     f (x, y, h, s) 'L' = g (x - 1, y, h - 1, s)
     f (x, y, h, s) 'U' = g (x, y + 1, h - 1, s)
     f (x, y, h, s) 'D' = g (x, y - 1, h - 1, s)
-    (_, _, hh, _) = foldl f (0, 0, h', S.fromList ps') s'
