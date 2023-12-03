@@ -98,7 +98,7 @@ infixr 9 .$
 pairs :: [a] -> [(a, a)]
 pairs = zip <*> tail
 
--- | tupli window with
+-- | tuple window with
 pairW :: (a -> a -> b) -> [a] -> [b]
 pairW = (<*> tail) . zipWith
 
