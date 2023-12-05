@@ -24,6 +24,7 @@ import qualified Data.Set as S
 import Debug.Trace (traceShow)
 
 type ByteString = B.ByteString
+type Set = S.Set
 
 -- {{ Parser
 newtype Parser a = Parser (ByteString -> (a, ByteString))
@@ -43,11 +44,15 @@ instance Monad Parser where
 
 -- {{ Serde
 class Show a => Serde a where
+    -- | serialise on one token
     ser :: a -> ByteString
     ser = B.pack . show
+
+    -- | deserialise on one token
     des :: Parser a
-    desn :: Int -> Parser [a]
-    desn n = replicateM n des
+
+    -- | deserialise on N tokens (only works on collections)
+    desN :: Int -> Parser a
 
     -- | convert B.read to serialiser
     fromRead :: (ByteString -> Maybe (a, ByteString)) -> Parser a
@@ -69,10 +74,17 @@ instance {-# OVERLAPS #-} Serde [String] where
     ser = B.unlines . fmap ser -- print [String] with \n
 instance {-# OVERLAPS #-} Serde a => Serde [a] where
     ser = B.unwords . fmap ser
-    des = Parser $ unfoldr f >>> (,B.empty)
-      where
-        f bs | B.null bs = Nothing
-        f bs = let Parser p = des in Just $ p bs
+    desN n = replicateM n des
+
+-- des = Parser $ unfoldr f >>> (,B.empty)
+--   where
+--     f bs | B.null bs = Nothing
+--     f bs = let Parser p = des in Just $ p bs
+-- class Show a => Serdes a where
+--     des :: Parser a
+--     desn :: Int -> Parser a
+-- instance (Serde a, Ord a) => Serde (Set a) where
+--     des = S.fromList <$> des
 
 -- }}
 
@@ -107,12 +119,11 @@ type B = Bool
 type C = Char
 type I = Int
 type S = String
-type Set = S.Set
 
 main :: IO ()
 main = B.interact $ ser . fst . p
   where
-    Parser p = desn 4 >>= \[_, m, h, k] -> des >>= (<$> replicateM m des) . cc h k
+    Parser p = desN 4 >>= \[_, m, h, k] -> des >>= (<$> replicateM m des) . cc h k
 
 cc :: I -> I -> S -> [(I, I)] -> B
 cc h k s ps = f k (0, 0) h s (S.fromList ps)
