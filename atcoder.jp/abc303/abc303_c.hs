@@ -126,7 +126,7 @@ mv (x, y) 'L' = (x - 1, y)
 mv (x, y) 'U' = (x, y + 1)
 mv (x, y) 'D' = (x, y - 1)
 
-f :: I -> (I, I) -> I -> [C] -> Set (I, I) -> Bool
+f :: I -> (I, I) -> I -> [C] -> Set (I, I) -> B
 f _ _ _ [] _ = True
 f k p h (c : ct) s
     | h' < 0 = False
