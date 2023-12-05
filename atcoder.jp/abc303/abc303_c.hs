@@ -74,17 +74,9 @@ instance {-# OVERLAPS #-} Serde [String] where
     ser = B.unlines . fmap ser -- print [String] with \n
 instance {-# OVERLAPS #-} Serde a => Serde [a] where
     ser = B.unwords . fmap ser
-    desN n = replicateM n des
-
--- des = Parser $ unfoldr f >>> (,B.empty)
---   where
---     f bs | B.null bs = Nothing
---     f bs = let Parser p = des in Just $ p bs
--- class Show a => Serdes a where
---     des :: Parser a
---     desn :: Int -> Parser a
--- instance (Serde a, Ord a) => Serde (Set a) where
---     des = S.fromList <$> des
+    desN = (`replicateM` des)
+instance (Serde a, Ord a) => Serde (Set a) where
+    desN = fmap S.fromList . desN
 
 -- }}
 
@@ -123,10 +115,10 @@ type S = String
 main :: IO ()
 main = B.interact $ ser . fst . p
   where
-    Parser p = desN 4 >>= \[_, m, h, k] -> des >>= (<$> replicateM m des) . cc h k
+    Parser p = desN 4 >>= \[_, m, h, k] -> cc h k <$> des <*> desN m
 
-cc :: I -> I -> S -> [(I, I)] -> B
-cc h k s ps = f k (0, 0) h s (S.fromList ps)
+cc :: I -> I -> S -> Set (I, I) -> B
+cc h k = f k (0, 0) h
 
 mv :: (I, I) -> C -> (I, I)
 mv (x, y) 'R' = (x + 1, y)
