@@ -37,9 +37,9 @@ def main(args):
     ext = path.splitext(args.src)[1]
     dest = path.join(dest, domain, contest, task) + ext
     if path.exists(dest):
-        act, copy = 'update', '\033[93mReplace\033[00m'
+        act, copy = 'refactor', '\033[93mReplace\033[00m'
     else:
-        act, copy = 'add', '\033[92mCopy\033[00m'
+        act, copy = 'feat', '\033[92mCopy\033[00m'
 
     # copy file
     print(copy, args.src, '-->', dest)
@@ -53,7 +53,7 @@ def main(args):
     system(f'git add {dest}')
     comment = f' ({args.comment})' if args.comment else ''
     task = f'{task}{ext}'
-    cmd = f'git commit -m "{act}({contest}) {task}{comment}" -m "{url}"'
+    cmd = f'git commit -m "{act}({contest}): {task}{comment}" -m "{url}"'
     system(cmd)
 
 
