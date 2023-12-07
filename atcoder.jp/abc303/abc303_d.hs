@@ -122,16 +122,15 @@ main = B.interact $ ser . fst . p
     Parser p = dd <$> desN 3 <*> des
 
 dd :: [I] -> [C] -> I
-dd [a, s, c] cs = uncurry min $ last  as
+dd [aa, ss, c] cs = uncurry min $ last as
   where
-    at = min (a + c) (c + s)
     af = case head cs of
         'a' -> a
-        'A' -> min s (c + a + c)
-    as = (af, at) : zipWith f as (tail cs)
-    ca = min (c + a) (s + c)
-    cac = min s (c + a + c)
-    csc = min a (c + s + c)
+        'A' -> s
+    as = (af, ca) : zipWith f as (tail cs)
+    ca = min (c + aa) (ss + c)
+    s = min ss (c + aa + c)
+    a = min aa (c + ss + c)
     f :: (I, I) -> C -> (I, I)
-    f (off, on) 'a' = (min (off + csc) (on + ca), min (off + ca) (on + cac))
-    f (off, on) 'A' = (min (off + cac) (on + ca), min (off + ca) (on + csc))
+    f (off, on) 'a' = (min (off + a) (on + ca), min (off + ca) (on + s))
+    f (off, on) 'A' = (min (off + s) (on + ca), min (off + ca) (on + a))
